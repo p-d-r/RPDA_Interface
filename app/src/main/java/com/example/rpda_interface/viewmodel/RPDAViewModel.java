@@ -22,13 +22,19 @@ public class RPDAViewModel {
     private Stack<RPDAAction> redoActions;
     private RSABaseRepository repo;
     private VisualRPDA rpda;
+    private Context context;
 
     public RPDAViewModel(Context context, RSABaseRepository repo) {
+        this.context = context;
         undoActions = new Stack<>();
         redoActions = new Stack<>();
         this.repo = repo;
         rpda = new VisualRPDA(new VisualState(VisualConstants.getPointInDp(context,
                                               VisualConstants.INITIAL_STATE_POSITION), 0));
+    }
+
+    public VisualRPDA getRpda() {
+        return this.rpda;
     }
 
     public VisualRPDA getRPDA() {
@@ -38,7 +44,14 @@ public class RPDAViewModel {
 
     }
 
-    public void handleStateAction(Context context) {
+    public void generateNewRpda() {
+        rpda = new VisualRPDA(new VisualState(VisualConstants.getPointInDp(context,
+                VisualConstants.INITIAL_STATE_POSITION), 0));
+        undoActions.clear();
+        redoActions.clear();
+    }
+
+    public void handleStateAction() {
 
         PointF coordinates = new PointF();
         coordinates.x = rpda.getCurrentX() + VisualConstants.getTransitionLengthX(context);

@@ -34,14 +34,14 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        rsaBaseRepo = new RSABaseRepository();
+        rpdaViewModel = new RPDAViewModel(this, rsaBaseRepo);
+        automatonCanvas = new AutomatonCanvas(this, rpdaViewModel);
+        rsaBaseRepo = new RSABaseRepository(rpdaViewModel);
         Thread concurrentActionListener = new Thread(rsaBaseRepo);
         concurrentActionListener.start();
 
         containerLayout = findViewById(R.id.containerLayout);
         linkStateText = findViewById(R.id.linkStateInput);
-        rpdaViewModel = new RPDAViewModel(this, rsaBaseRepo);
-        automatonCanvas = new AutomatonCanvas(this, rpdaViewModel);
 
         //HorizontalScrollView is customized to allow 2d scrolling
         //and to allow child-controls to access relevant touch- and gesture-events
@@ -96,7 +96,7 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
 
 
     public void createState(View view) {
-        rpdaViewModel.handleStateAction(this);
+        rpdaViewModel.handleStateAction();
         automatonCanvas.invalidate();
     }
 
@@ -145,6 +145,11 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
 
     }
 
+
+    public void updateAutomaton(View view) {
+        //rpdaViewModel.update();
+        automatonCanvas.updateRpda();
+    }
 
 
     public void showPushActionMenu(View v) {

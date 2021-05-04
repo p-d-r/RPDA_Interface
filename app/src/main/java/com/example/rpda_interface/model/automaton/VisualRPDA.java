@@ -24,6 +24,8 @@ public class VisualRPDA
         states = new HashMap<>();
     }
 
+
+
     public int getVisualHeight() {
         return visualHeight;
     }
@@ -50,6 +52,10 @@ public class VisualRPDA
 
     public VisualTransition addState(VisualState target) {
 
+        if (states.size() == 0) {
+            states.put(target.getId(), target);
+            currentState = target;
+        }
         states.put(target.getId(), target);
         VisualTransition link = insertLink(currentState, target);
         currentState = target;

@@ -12,6 +12,7 @@ import android.view.View;
 
 import com.example.rpda_interface.model.automaton.VisualRPDA;
 import com.example.rpda_interface.model.automaton.VisualState;
+import com.example.rpda_interface.repository.RSABaseRepository;
 import com.example.rpda_interface.viewmodel.RPDAViewModel;
 
 import java.util.HashSet;
@@ -27,11 +28,13 @@ public class AutomatonCanvas extends View {
     private Context context;
     private float scaleFactor = 1;
     private ScaleGestureDetector scaleListener;
+    private RPDAViewModel rpdaViewModel;
 
 
     public AutomatonCanvas(Context context, RPDAViewModel rpdaViewModel) {
         super(context);
         this.context = context;
+        this.rpdaViewModel = rpdaViewModel;
         scaleListener = new ScaleGestureDetector(context, new ScaleListener());
 
         rpda = rpdaViewModel.getRPDA();
@@ -92,6 +95,11 @@ public class AutomatonCanvas extends View {
         }
     }
 
+    public void updateRpda() {
+        rpda = rpdaViewModel.getRpda();
+        this.invalidate();
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         scaleListener.onTouchEvent(event);
@@ -106,6 +114,5 @@ public class AutomatonCanvas extends View {
             return true;
         }
     }
-
 }
 

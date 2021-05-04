@@ -3,6 +3,7 @@ package com.example.rpda_interface.repository;
 import com.example.rpda_interface.model.socketConnector.SocketConnector;
 import com.example.rpda_interface.model.action.ActionKind;
 import com.example.rpda_interface.model.automaton.VisualRPDA;
+import com.example.rpda_interface.viewmodel.RPDAViewModel;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,8 +18,12 @@ public class RSABaseRepository implements Runnable {
 
     private static ActionKind currentActionKind = ActionKind.NO_ACTION;
     private VisualRPDA rpda;
+    private RPDAViewModel rpdaViewModel;
 
 
+    public RSABaseRepository(RPDAViewModel rpdaViewModel) {
+        this.rpdaViewModel = rpdaViewModel;
+    }
 
     @Override
     public void run() {
@@ -48,7 +53,9 @@ public class RSABaseRepository implements Runnable {
         }
     }
 
-
+    public VisualRPDA getRpda() {
+        return this.rpda;
+    }
 
     private synchronized void setCurrentActionKind(ActionKind actionKind) {
         currentActionKind = actionKind;
@@ -56,6 +63,7 @@ public class RSABaseRepository implements Runnable {
 
 
     private void updateRpdaSet(String message) {
+        rpdaViewModel.generateNewRpda();
         String name = "";
         CharacterIterator iterator = new StringCharacterIterator(message);
         while (iterator.current() != ',') {
@@ -64,7 +72,7 @@ public class RSABaseRepository implements Runnable {
         }
 
         iterator.next();
-        rpda = new VisualRPDA(name);
+        //rpda = new VisualRPDA(name);
         HashMap<Integer, Integer> transitions = new HashMap<>();
 
         while(iterator.current() != CharacterIterator.DONE) {
@@ -102,13 +110,14 @@ public class RSABaseRepository implements Runnable {
                     iterator.next();
                 }
 
-                rpda.addState(Integer.parseInt(id));
+                rpdaViewModel.handleStateAction();
+                //rpda.addState(Integer.parseInt(id));
                 iterator.next();
         }
 
-        for (Map.Entry<Integer, Integer> entry : transitions.entrySet()) {
+        /*for (Map.Entry<Integer, Integer> entry : transitions.entrySet()) {
             rpda.getState(entry.getKey()).addTransition(rpda.getState(entry.getValue()));
-        }
+        }*/
     }
 
 
