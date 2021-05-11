@@ -30,8 +30,6 @@ public class VisualState implements Comparable
         transitions = new ArrayList<>();
     }
 
-    public static void stateDeleted() {numberOfStates--;}
-
     public int getVerticalOffset() {
         return verticalOffset;
     }
@@ -97,6 +95,7 @@ public class VisualState implements Comparable
         }
         return getSuccessorStates();
     }
+
 
 
     @Override

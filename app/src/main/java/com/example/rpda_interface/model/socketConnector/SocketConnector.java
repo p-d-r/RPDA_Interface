@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
 public class SocketConnector {
 
     private static final int portNumber = 6666;
-    //qprivate static final String TARGET_IP_IPV4 = "192.168.0.2";
+    //private static final String TARGET_IP_IPV4 = "192.168.0.3";
     private static final String TARGET_IP_IPV4 = "192.168.100.107";
     private static final String TARGET_IP_IPV6 = " 2a02:810d:8f40:971:cda3:e5ee:19ab:982b";
 

@@ -1,5 +1,7 @@
 package com.example.rpda_interface.model.automaton;
 
+import android.graphics.PointF;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.PriorityQueue;
@@ -90,6 +92,11 @@ public class VisualRPDA
     public void linkState(VisualState target) {
         currentState.addTransition(target);
         currentState = target;
+    }
+
+
+    public void computeLayout() {
+        PointF initialPosition = new PointF(50,50);
     }
 
     public int computeIndirectOffset() {
