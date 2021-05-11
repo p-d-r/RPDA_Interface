@@ -97,7 +97,7 @@ public class AutomatonCanvas extends View {
 
     public void updateRpda() {
         rpda = rpdaViewModel.getRpda();
-        this.invalidate();
+        this.invalidate(); String str = "";
     }
 
     @Override
