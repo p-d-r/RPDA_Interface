@@ -28,6 +28,7 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
     HorizontalScrollView horizontalScroller;
     ScrollView verticalScroller;
     RSABaseRepository rsaBaseRepo;
+    static int ids = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -96,7 +97,8 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
 
 
     public void createState(View view) {
-        rpdaViewModel.handleStateAction();
+        rpdaViewModel.handleStateAction(ids);
+        ids++;
         automatonCanvas.invalidate();
     }
 
@@ -160,6 +162,9 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
     }
 
 
+    public void popStackSymbol(View view) {
+        rsaBaseRepo.sendActionInfo(ActionKind.POP);
+    }
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {

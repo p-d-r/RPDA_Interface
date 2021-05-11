@@ -83,34 +83,25 @@ public class RSABaseRepository implements Runnable {
                 }
 
                 iterator.next();
-                boolean isBranching;
-                if (iterator.current() == 1)
-                    isBranching = false;
-                else
-                    isBranching = true;
-
-                iterator.next();
-
-                int num_transitions;
-                if (iterator.current() == 1)
-                    isBranching = false;
-                else
-                    isBranching = true;
-
-                iterator.next();
 
                 while (iterator.current() != ';') {
+                    boolean sem = false;
                     String targetId="";
                     while (iterator.current() != ',') {
+                        if (iterator.current() == ';') {
+                            sem=true;
+                            break;
+                        }
                         targetId += iterator.current();
                         iterator.next();
                     }
 
                     transitions.put(Integer.parseInt(id), Integer.parseInt(targetId));
-                    iterator.next();
+                    if (!sem)
+                      iterator.next();
                 }
 
-                rpdaViewModel.handleStateAction();
+                rpdaViewModel.handleStateAction(Integer.parseInt(id));
                 //rpda.addState(Integer.parseInt(id));
                 iterator.next();
         }

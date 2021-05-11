@@ -37,7 +37,7 @@ public class AutomatonCanvas extends View {
         this.rpdaViewModel = rpdaViewModel;
         scaleListener = new ScaleGestureDetector(context, new ScaleListener());
 
-        rpda = rpdaViewModel.getRPDA();
+        rpda = rpdaViewModel.getRpda();
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
 

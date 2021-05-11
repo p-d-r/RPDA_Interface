@@ -8,7 +8,7 @@ import java.util.List;
 
 public class VisualState implements Comparable
 {
-    private static int numberOfStates;
+    private static int numberOfStates = 0;
     private int id;
     private ArrayList<VisualTransition> transitions;
     private PointF centerPosition;
@@ -20,6 +20,13 @@ public class VisualState implements Comparable
     public VisualState(PointF centerPosition, int verticalOffset){
         this.id = numberOfStates;
         numberOfStates++;
+        this.centerPosition = centerPosition;
+        this.verticalOffset = verticalOffset;
+        transitions = new ArrayList<>();
+    }
+
+    public VisualState(int id, PointF centerPosition, int verticalOffset){
+        this.id = id;
         this.centerPosition = centerPosition;
         this.verticalOffset = verticalOffset;
         transitions = new ArrayList<>();
