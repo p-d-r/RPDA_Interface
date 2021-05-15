@@ -37,13 +37,6 @@ public class RPDAViewModel {
         return this.rpda;
     }
 
-    public VisualRPDA getRPDA() {
-        return rpda;
-    }
-    public void handleAction(RPDAAction action) {
-
-    }
-
     public void generateNewRpda() {
         rpda = new VisualRPDA(new VisualState(VisualConstants.getPointInDp(context,
                 VisualConstants.INITIAL_STATE_POSITION), 0));
@@ -51,13 +44,13 @@ public class RPDAViewModel {
         redoActions.clear();
     }
 
-    public void handleStateAction() {
+    public void handleStateAction(int id) {
 
         PointF coordinates = new PointF();
         coordinates.x = rpda.getCurrentX() + VisualConstants.getTransitionLengthX(context);
         int offset = computeVerticalOffset(context);
         coordinates.y = VisualConstants.INITIAL_STATE_POSITION.y + offset * VisualConstants.getTransitionOffsetY(context);
-        undoActions.push(new StateAction(rpda.addState(new VisualState(coordinates, offset))));
+        undoActions.push(new StateAction(rpda.addState(new VisualState(id, coordinates, offset))));
     }
 
     public boolean handleLinkAction(int id) {

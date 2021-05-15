@@ -59,7 +59,7 @@ public class VisualRPDA
     }
 
     public VisualState getState(int id) {
-        return states.get(id);
+       return states.get(id);
     }
 
     public VisualState getInitialState() {return states.get(0);}
