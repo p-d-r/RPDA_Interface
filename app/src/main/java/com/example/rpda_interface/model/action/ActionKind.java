@@ -12,6 +12,8 @@ public enum ActionKind {
     GRIPPER,
     EXECUTE,
     QUIT,
+    CREATE_SUBTASK,
+    SWITCH_SUBTASK,
     NO_ACTION,
     PUSH_POSE,
     PUSH_SUBTASK,

@@ -30,7 +30,7 @@ public class RSABaseRepository implements Runnable {
         try {
             SocketConnector.initializeSocket();
         } catch (IOException e) {
-            e.printStackTrace();
+            return;
         }
         InputStreamReader receiver;
 
@@ -46,10 +46,8 @@ public class RSABaseRepository implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("RSABaseRepository-Thread " + Thread.currentThread().getId() + " will be shut down due to error.");
-        }
-
-        while (currentActionKind != ActionKind.QUIT) {
-
+        } catch (NullPointerException e) {
+            System.err.println("Error in InputStream / Reader!");
         }
     }
 
@@ -175,7 +173,7 @@ public class RSABaseRepository implements Runnable {
                     transmitter.write(actionKind.name());
                     transmitter.flush();
                 } catch (IOException e) {
-                    e.printStackTrace(); //TODO handle invariant violation -> try reconnect or the like
+                    e.printStackTrace(); //TODO handle connection loss -> try reconnect or the like
                     currentActionKind = formerActionKind;
                     System.err.println("Invariant violated, try resetting connection");
                 }

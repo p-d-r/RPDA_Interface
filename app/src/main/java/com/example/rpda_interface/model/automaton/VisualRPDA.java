@@ -4,6 +4,7 @@ import android.graphics.PointF;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.PriorityQueue;
 
 public class VisualRPDA
@@ -28,8 +29,25 @@ public class VisualRPDA
 
 
 
-    public int getVisualHeight() {
-        return visualHeight;
+    public float getVisualHeight() {
+        float maxY = 0;
+        for (Map.Entry<Integer, VisualState> state : states.entrySet()) {
+            if (state.getValue().getCenterPosition().y > maxY)
+                maxY = state.getValue().getCenterPosition().y;
+        }
+
+        return maxY+50;
+    }
+
+
+    public float getVisualWidth() {
+        float maxX = 0;
+        for (Map.Entry<Integer, VisualState> state : states.entrySet()) {
+            if (state.getValue().getCenterPosition().x > maxX)
+                maxX = state.getValue().getCenterPosition().x;
+        }
+
+        return maxX+50;
     }
 
     public HashMap<Integer, VisualState> getStates() {
@@ -94,10 +112,6 @@ public class VisualRPDA
         currentState = target;
     }
 
-
-    public void computeLayout() {
-        PointF initialPosition = new PointF(50,50);
-    }
 
     public int computeIndirectOffset() {
         PriorityQueue<VisualState> successors = new PriorityQueue<>();

@@ -93,6 +93,7 @@ public class VisualState implements Comparable
         for (VisualTransition trans : transitions) {
             canvas.drawLine(this.centerPosition.x, this.centerPosition.y, trans.getTarget().getCenterPosition().x, trans.getTarget().getCenterPosition().y, statePaint);
         }
+
         return getSuccessorStates();
     }
 

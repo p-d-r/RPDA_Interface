@@ -37,6 +37,7 @@ public class SocketConnector {
                 transmissionWriter = null;
                 receiverReader = null;
             }
+            throw e;
         }
     }
 

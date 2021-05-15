@@ -12,7 +12,6 @@ import android.view.View;
 
 import com.example.rpda_interface.model.automaton.VisualRPDA;
 import com.example.rpda_interface.model.automaton.VisualState;
-import com.example.rpda_interface.repository.RSABaseRepository;
 import com.example.rpda_interface.viewmodel.RPDAViewModel;
 
 import java.util.HashSet;
@@ -29,6 +28,10 @@ public class AutomatonCanvas extends View {
     private float scaleFactor = 1;
     private ScaleGestureDetector scaleListener;
     private RPDAViewModel rpdaViewModel;
+    float pinchX;
+    float pinchY;
+    float scrollX;
+    float scrollY;
 
 
     public AutomatonCanvas(Context context, RPDAViewModel rpdaViewModel) {
@@ -62,8 +65,7 @@ public class AutomatonCanvas extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        //setMeasuredDimension(rpda.getVisualHeight(), rpda.getVisualWidth());
-        setMeasuredDimension(3000, 2000);
+        setMeasuredDimension(5000, 5000);
     }
 
 
@@ -71,14 +73,16 @@ public class AutomatonCanvas extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        canvas.save();
-        canvas.scale(scaleFactor, scaleFactor);
+        //canvas.save();
+        float x = (pinchX + scrollX);
+        float y = (pinchY + scrollY);
+        canvas.scale(scaleFactor, scaleFactor, (pinchX+scrollX), pinchY + scrollY);
         canvas.drawARGB(255, 255, 255, 255);
-        printRPDAState(canvas, rpda.getState(0), 200, screenHeight/2);
-        canvas.restore();
+        printRPDAState(canvas);
+        //canvas.restore();
     }
 
-    private void printRPDAState(Canvas canvas, VisualState state, int x, int y) {
+    private void printRPDAState(Canvas canvas) {
         PriorityQueue<VisualState> closure = new PriorityQueue<>();
         closure.add(rpda.getInitialState());
         HashSet<Integer> usedIds = new HashSet<>();
@@ -107,12 +111,23 @@ public class AutomatonCanvas extends View {
     }
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            pinchX = detector.getFocusX();
+            pinchY = detector.getFocusY();
+            
+            return true;
+        }
+
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            scaleFactor *= detector.getScaleFactor();
+            float maxScale = 5;
+            scaleFactor *= Math.min(detector.getScaleFactor(), maxScale);
             invalidate();
             return true;
         }
+
     }
 }
 

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
@@ -56,7 +57,7 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
 
             @Override
             public boolean onTouchEvent(MotionEvent event) {
-                content.onTouchEvent(event);
+                boolean  f = content.onTouchEvent(event);
                 return super.onTouchEvent(event);
             }
         };
@@ -80,7 +81,8 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
                 return true;
             }
 
-            @Override public boolean onInterceptTouchEvent(MotionEvent event)
+            @Override
+            public boolean onInterceptTouchEvent(MotionEvent event)
             {
                 super.onInterceptTouchEvent(event);
                 horizontalScroller.onInterceptTouchEvent(event);
@@ -91,6 +93,20 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
         horizontalScroller.addView(automatonCanvas);
         verticalScroller.addView(horizontalScroller);
         containerLayout.addView(verticalScroller);
+
+        horizontalScroller.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                automatonCanvas.scrollX = horizontalScroller.getScrollX();
+            }
+        });
+
+        verticalScroller.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                automatonCanvas.scrollY = verticalScroller.getScrollY();
+            }
+        });
     }
 
 
@@ -174,6 +190,18 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
                 case R.id.push_object_id:
                     rsaBaseRepo.sendActionInfo(ActionKind.PUSH_OBJ_ID);
                     return true;
+                case R.id.scan_object:
+                    rsaBaseRepo.sendActionInfo(ActionKind.SAMPLE_ADD);
+                    return true;
+                case R.id.gripper_action:
+                    rsaBaseRepo.sendActionInfo(ActionKind.GRIPPER);
+                    return true;
+                case R.id.create_subtask:
+                    rsaBaseRepo.sendActionInfo(ActionKind.CREATE_SUBTASK);
+                    return true;
+                case R.id.switch_subtask:
+                    rsaBaseRepo.sendActionInfo(ActionKind.SWITCH_SUBTASK);
+                    return true;
                 default:
                     return false;
             }
@@ -183,4 +211,10 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
         }
     }
 
+    public void showActionMenu(View v) {
+        PopupMenu popup = new PopupMenu(this, v);
+        popup.setOnMenuItemClickListener(MainActivity.this);
+        popup.inflate(R.menu.action_menu);
+        popup.show();
+    }
 }

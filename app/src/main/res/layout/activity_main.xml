@@ -34,18 +34,13 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pop from Stack..." />
+            android:text="Pop" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Scan for stimulus..." />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="update automaton..."
-            android:onClick="updateAutomaton"/>
+            android:text="Actions..."
+            android:onClick="showActionMenu"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -53,15 +48,15 @@
             android:id="@+id/createStateButton"
             android:text="create state..."
             android:onClick="createState"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="link"
+            android:onClick="linkState"/>
         <EditText
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:id="@+id/linkStateInput" />
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="link state..."
-            android:onClick="linkState"/>
     </LinearLayout>
 
 </LinearLayout>

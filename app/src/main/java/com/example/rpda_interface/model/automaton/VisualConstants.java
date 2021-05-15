@@ -4,9 +4,9 @@ import android.graphics.PointF;
 import android.util.DisplayMetrics;
 
 public class VisualConstants {
-    public static final PointF INITIAL_STATE_POSITION = new PointF(400, 400);
-    private static final float transitionLengthX = 800;
-    private static final float transitionOffsetY = 800;
+    public static final PointF INITIAL_STATE_POSITION = new PointF(400, 1000);
+    private static final float transitionLengthX = 1350;
+    private static final float transitionOffsetY = 1500;
 
     public static float convertPixelsToDp(float px, Context context){
         return px / ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
