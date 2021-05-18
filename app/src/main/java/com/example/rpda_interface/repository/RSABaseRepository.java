@@ -1,5 +1,6 @@
 package com.example.rpda_interface.repository;
 
+import com.example.rpda_interface.model.automaton.RpdaSet;
 import com.example.rpda_interface.model.socketConnector.SocketConnector;
 import com.example.rpda_interface.model.action.ActionKind;
 import com.example.rpda_interface.model.automaton.VisualRPDA;
@@ -19,6 +20,7 @@ public class RSABaseRepository implements Runnable {
     private static ActionKind currentActionKind = ActionKind.NO_ACTION;
     private VisualRPDA rpda;
     private RPDAViewModel rpdaViewModel;
+    public RpdaSet rpdaSet;
 
 
     public RSABaseRepository(RPDAViewModel rpdaViewModel) {
@@ -41,7 +43,10 @@ public class RSABaseRepository implements Runnable {
             while (currentActionKind != ActionKind.QUIT) {
                 String str = reader.readLine();
                 System.out.println("Message: " + str);
-                updateRpdaSet(str);
+                switch(str.charAt(0)) {
+                    case '0': updateRpdaSet(str); break;
+                    case '1': getRpdaSetInfo(str); break;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -60,15 +65,19 @@ public class RSABaseRepository implements Runnable {
     }
 
 
+
+
     private void updateRpdaSet(String message) {
-        rpdaViewModel.generateNewRpda();
+        //rpdaViewModel.generateNewRpda();
         String name = "";
         CharacterIterator iterator = new StringCharacterIterator(message);
+        iterator.next();
         while (iterator.current() != ',') {
             name+=iterator.current();
             iterator.next();
         }
 
+        rpdaViewModel.generateNewRpda(name);
         iterator.next();
         //rpda = new VisualRPDA(name);
         HashMap<Integer, Integer> transitions = new HashMap<>();
@@ -100,16 +109,31 @@ public class RSABaseRepository implements Runnable {
                 }
 
                 rpdaViewModel.handleStateAction(Integer.parseInt(id));
-                //rpda.addState(Integer.parseInt(id));
                 iterator.next();
         }
-
-        /*for (Map.Entry<Integer, Integer> entry : transitions.entrySet()) {
-            rpda.getState(entry.getKey()).addTransition(rpda.getState(entry.getValue()));
-        }*/
     }
 
 
+    private void getRpdaSetInfo(String message) {
+        rpdaSet  = new RpdaSet();
+        CharacterIterator iterator = new StringCharacterIterator(message);
+        while(iterator.current() != iterator.DONE) {
+            String name = "";
+            String id = "";
+            while (iterator.next() != ',') {
+                if (iterator.current() == iterator.DONE)
+                    return;
+                id += iterator.current();
+            }
+            while (iterator.next() != ';') {
+                if (iterator.current() == iterator.DONE)
+                    return;
+                name += iterator.current();
+            }
+
+            rpdaSet.addRpda(name);
+        }
+    }
 
     private void handleAction(String actionDesc) {
         //Do conversion of messages here
@@ -173,5 +197,42 @@ public class RSABaseRepository implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Notify the main-system about an Action that was triggered by the user
+     * @param actionKind the ActionKind that originated from the rpda_interface
+     */
+    public void sendActionInfo(ActionKind actionKind, String additionalInfo) {
+        try {
+            ActionKind formerActionKind = currentActionKind;
+            Runnable task = () -> {
+                setCurrentActionKind(actionKind);
+                try {
+                    PrintWriter transmitter = SocketConnector.getTransmitter();
+                    transmitter.write(actionKind.name() + "," + additionalInfo + ";");
+                    transmitter.flush();
+                } catch (IOException e) {
+                    e.printStackTrace(); //TODO handle connection loss -> try reconnect or the like
+                    currentActionKind = formerActionKind;
+                    System.err.println("Invariant violated, try resetting connection");
+                }
+            };
+            new Thread(task).start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public RpdaSet nextSet() {
+        try {
+            while (rpdaSet == null) {
+                Thread.sleep(200);
+            }
+        }catch(Exception e) {
+            ; //TODO add proper error handling
+        }
+        return rpdaSet;
     }
 }

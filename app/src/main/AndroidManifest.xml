@@ -11,18 +11,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
-        <activity android:name=".SubtaskSelectorActivity"></activity>
         <activity
-            android:name=".view.SubtaskSelectorAcitivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_subtask_selector_acitivity"
-            android:theme="@style/@android:style/Theme.NoTitleBar.Fullscreen.Fullscreen" />
+            android:name=".view.SubtaskSelectorActivity"
+            android:screenOrientation="landscape">
+        </activity>
         <activity
             android:name=".view.MainActivity"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

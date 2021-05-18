@@ -13,11 +13,13 @@ public class VisualRPDA
     private int visualHeight;
     private int visualWidth;
     private VisualState currentState;
-    private String name;
+    private VisualState initialState;
+    public String name;
 
 
     public VisualRPDA(VisualState initialState ){
         states = new HashMap<>();
+        this.initialState = initialState;
         currentState = initialState;
         states.put(currentState.getId(), currentState);
     }
@@ -54,15 +56,11 @@ public class VisualRPDA
         return states;
     }
 
-    public int getNumberOfStates(){
-        return states.size();
-    }
-
     public VisualState getState(int id) {
        return states.get(id);
     }
 
-    public VisualState getInitialState() {return states.get(0);}
+    public VisualState getInitialState() {return initialState;}
 
     public VisualTransition insertLink(VisualState origin, VisualState target) {
         VisualTransition trans = new VisualTransition(origin, target);
@@ -72,14 +70,20 @@ public class VisualRPDA
 
     public VisualTransition addState(VisualState target) {
 
-        if (states.size() == 0) {
-            states.put(target.getId(), target);
-            currentState = target;
-        }
-        states.put(target.getId(), target);
-        VisualTransition link = insertLink(currentState, target);
-        currentState = target;
+        VisualTransition link = null;
+        if (states.get(target.getId()) == null) {
+            if (states.size() == 0) {
+                initialState = target;
+                currentState = target;
+                target.setPosition(VisualConstants.INITIAL_STATE_POSITION, 0);
 
+                states.put(target.getId(), target);
+            } else {
+                states.put(target.getId(), target);
+                link = insertLink(currentState, target);
+                currentState = target;
+                }
+        }
         return link;
     }
 
@@ -100,7 +104,9 @@ public class VisualRPDA
     }
 
     public float getCurrentX() {
-        return currentState.getCenterPosition().x;
+        if (currentState != null)
+            return currentState.getCenterPosition().x;
+        else return 0;
     }
 
     public float getCurrentY() {

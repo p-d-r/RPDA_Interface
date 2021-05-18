@@ -18,6 +18,7 @@ public enum ActionKind {
     PUSH_POSE,
     PUSH_SUBTASK,
     PUSH_OBJ_ID,
+    REQUEST_SET_INFO,
     TAKE_POSE,
     POP,
     SAVE,

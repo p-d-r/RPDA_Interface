@@ -20,15 +20,13 @@ public class RPDAViewModel {
 
     private Stack<RPDAAction> undoActions;
     private Stack<RPDAAction> redoActions;
-    private RSABaseRepository repo;
     private VisualRPDA rpda;
     private Context context;
 
-    public RPDAViewModel(Context context, RSABaseRepository repo) {
+    public RPDAViewModel(Context context) {
         this.context = context;
         undoActions = new Stack<>();
         redoActions = new Stack<>();
-        this.repo = repo;
         rpda = new VisualRPDA(new VisualState(VisualConstants.getPointInDp(context,
                                               VisualConstants.INITIAL_STATE_POSITION), 0));
     }
@@ -37,11 +35,13 @@ public class RPDAViewModel {
         return this.rpda;
     }
 
-    public void generateNewRpda() {
-        rpda = new VisualRPDA(new VisualState(VisualConstants.getPointInDp(context,
-                VisualConstants.INITIAL_STATE_POSITION), 0));
+    public void generateNewRpda(String name) {
+        //rpda = new VisualRPDA(new VisualState(VisualConstants.getPointInDp(context,
+        //        VisualConstants.INITIAL_STATE_POSITION), 0));
+        rpda = new VisualRPDA(name);
         undoActions.clear();
         redoActions.clear();
+        rpda.name = name;
     }
 
     public void handleStateAction(int id) {
@@ -98,14 +98,17 @@ public class RPDAViewModel {
 
     private int computeVerticalOffset(Context context) {
         //int currentOffset = rpda.getCurrentState().getVerticalOffset();
-        int branchingStateOffset = rpda.getCurrentState().getNumberOfTransitions();
-        int indirectOffset = rpda.computeIndirectOffset();
-        if (branchingStateOffset >= indirectOffset)
-            return branchingStateOffset;
-        else {
-            if (rpda.getCurrentState().willChangeToBranchingState())
-                return indirectOffset + 1;
-            else return indirectOffset;
+        if (rpda.getCurrentState() != null) {
+            int branchingStateOffset = rpda.getCurrentState().getNumberOfTransitions();
+            int indirectOffset = rpda.computeIndirectOffset();
+            if (branchingStateOffset >= indirectOffset)
+                return branchingStateOffset;
+            else {
+                if (rpda.getCurrentState().willChangeToBranchingState())
+                    return indirectOffset + 1;
+                else return indirectOffset;
+            }
         }
+        else return 0;
     }
 }

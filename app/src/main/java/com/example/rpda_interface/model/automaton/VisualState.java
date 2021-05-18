@@ -32,6 +32,11 @@ public class VisualState implements Comparable
         transitions = new ArrayList<>();
     }
 
+    public void setPosition(PointF centerPosition, int verticalOffset) {
+        this.centerPosition = centerPosition;
+        this.verticalOffset = verticalOffset;
+    }
+
     public VisualState(int id) {
         this.id = id;
         transitions = new ArrayList<>();

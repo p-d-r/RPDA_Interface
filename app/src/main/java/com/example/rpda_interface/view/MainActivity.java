@@ -1,6 +1,7 @@
 package com.example.rpda_interface.view;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.rpda_interface.R;
 import com.example.rpda_interface.model.action.ActionKind;
+import com.example.rpda_interface.model.automaton.RpdaSet;
 import com.example.rpda_interface.repository.RSABaseRepository;
 import com.example.rpda_interface.viewmodel.RPDAViewModel;
 
@@ -29,14 +31,14 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
     HorizontalScrollView horizontalScroller;
     ScrollView verticalScroller;
     RSABaseRepository rsaBaseRepo;
-    static int ids = 0;
+    static int ids = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        rpdaViewModel = new RPDAViewModel(this, rsaBaseRepo);
+        rpdaViewModel = new RPDAViewModel(this);
         automatonCanvas = new AutomatonCanvas(this, rpdaViewModel);
         rsaBaseRepo = new RSABaseRepository(rpdaViewModel);
         Thread concurrentActionListener = new Thread(rsaBaseRepo);
@@ -156,14 +158,6 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
         automatonCanvas.invalidate();
     }
 
-
-
-    //TODO: create state when push is activated
-    public void pushAction(View view) {
-
-    }
-
-
     public void updateAutomaton(View view) {
         //rpdaViewModel.update();
         automatonCanvas.updateRpda();
@@ -185,13 +179,15 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         try {
+            Intent data;
+            RpdaSet rpdaSet;
             switch (item.getItemId()) {
                 case R.id.push_pose:
                     rsaBaseRepo.sendActionInfo(ActionKind.PUSH_POSE);
                     return true;
-                case R.id.push_subtask:
-                    rsaBaseRepo.sendActionInfo(ActionKind.PUSH_SUBTASK);
-                    return true;
+                /*case R.id.SHOW_SUBTASKS:
+
+                    return true;*/
                 case R.id.push_object_id:
                     rsaBaseRepo.sendActionInfo(ActionKind.PUSH_OBJ_ID);
                     return true;
@@ -201,11 +197,29 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
                 case R.id.gripper_action:
                     rsaBaseRepo.sendActionInfo(ActionKind.GRIPPER);
                     return true;
+                case R.id.push_subtask:
+                    rsaBaseRepo.rpdaSet = null;
+                    rsaBaseRepo.sendActionInfo(ActionKind.REQUEST_SET_INFO);
+                    data = new Intent(this, SubtaskSelectorActivity.class);
+                    rpdaSet = rsaBaseRepo.nextSet();
+                    data.putExtra("action_name", ActionKind.PUSH_SUBTASK.name());
+                    data.putExtra("rpdaSet", rpdaSet);
+                    startActivityForResult(data, 0);
+                    return true;
                 case R.id.create_subtask:
-                    rsaBaseRepo.sendActionInfo(ActionKind.CREATE_SUBTASK);
+                    rsaBaseRepo.sendActionInfo(ActionKind.CREATE_SUBTASK, linkStateText.getText().toString());
                     return true;
                 case R.id.switch_subtask:
-                    rsaBaseRepo.sendActionInfo(ActionKind.SWITCH_SUBTASK);
+                    rsaBaseRepo.rpdaSet = null;
+                    rsaBaseRepo.sendActionInfo(ActionKind.REQUEST_SET_INFO);
+                    data = new Intent(this, SubtaskSelectorActivity.class);
+                    rpdaSet = rsaBaseRepo.nextSet();
+                    data.putExtra("action_name", ActionKind.SWITCH_SUBTASK.name());
+                    data.putExtra("rpdaSet", rpdaSet);
+                    startActivityForResult(data, 0);
+                    return true;
+                case R.id.update_automaton:
+                    automatonCanvas.updateRpda();
                     return true;
                 default:
                     return false;
@@ -221,5 +235,20 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
         popup.setOnMenuItemClickListener(MainActivity.this);
         popup.inflate(R.menu.action_menu);
         popup.show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        //int selectedRpdaId = data.getIntExtra("rpda_id", 0);
+        //rsaBaseRepo.sendActionInfo(ActionKind.SWITCH_SUBTASK);
+        String selectedRpdaName = data.getStringExtra("resName");
+        ActionKind actionKind = ActionKind.valueOf(data.getStringExtra("action_name"));
+        if (actionKind == ActionKind.SWITCH_SUBTASK) {
+            rsaBaseRepo.sendActionInfo(actionKind, selectedRpdaName);
+        } else if (actionKind == ActionKind.PUSH_SUBTASK) {
+            rsaBaseRepo.sendActionInfo(actionKind, selectedRpdaName);
+        }
     }
 }
