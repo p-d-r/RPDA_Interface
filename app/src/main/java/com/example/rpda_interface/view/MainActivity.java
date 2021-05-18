@@ -15,8 +15,10 @@ import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.example.rpda_interface.R;
+import com.example.rpda_interface.RpdaUpdatedListener;
 import com.example.rpda_interface.model.action.ActionKind;
 import com.example.rpda_interface.model.automaton.RpdaSet;
+import com.example.rpda_interface.model.automaton.VisualRPDA;
 import com.example.rpda_interface.repository.RSABaseRepository;
 import com.example.rpda_interface.viewmodel.RPDAViewModel;
 
@@ -41,6 +43,14 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
         rpdaViewModel = new RPDAViewModel(this);
         automatonCanvas = new AutomatonCanvas(this, rpdaViewModel);
         rsaBaseRepo = new RSABaseRepository(rpdaViewModel);
+        rsaBaseRepo.rpdaUpdatedListener = new RpdaUpdatedListener() {
+            @Override
+            public void onDataReady() {
+                if (automatonCanvas != null)
+                    automatonCanvas.updateRpda();
+            }
+        };
+
         Thread concurrentActionListener = new Thread(rsaBaseRepo);
         concurrentActionListener.start();
 
@@ -113,13 +123,11 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
     }
 
 
-
     public void createState(View view) {
         rpdaViewModel.handleStateAction(ids);
         ids++;
         automatonCanvas.invalidate();
     }
-
 
 
     public void linkState(View view) {
@@ -145,18 +153,17 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
     }
 
 
-
     public void undoAction(View view) {
         rpdaViewModel.undo();
         automatonCanvas.invalidate();
     }
 
 
-
     public void redoAction(View view) {
         rpdaViewModel.redo();
         automatonCanvas.invalidate();
     }
+
 
     public void updateAutomaton(View view) {
         //rpdaViewModel.update();
@@ -176,6 +183,7 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
         rsaBaseRepo.sendActionInfo(ActionKind.POP);
     }
 
+
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         try {
@@ -185,9 +193,6 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
                 case R.id.push_pose:
                     rsaBaseRepo.sendActionInfo(ActionKind.PUSH_POSE);
                     return true;
-                /*case R.id.SHOW_SUBTASKS:
-
-                    return true;*/
                 case R.id.push_object_id:
                     rsaBaseRepo.sendActionInfo(ActionKind.PUSH_OBJ_ID);
                     return true;

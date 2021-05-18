@@ -60,7 +60,6 @@ public class AutomatonCanvas extends View {
     }
 
 
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -82,6 +81,7 @@ public class AutomatonCanvas extends View {
         //canvas.restore();
     }
 
+
     private void printRPDAState(Canvas canvas) {
         PriorityQueue<VisualState> closure = new PriorityQueue<>();
         closure.add(rpda.getInitialState());
@@ -99,10 +99,12 @@ public class AutomatonCanvas extends View {
         }
     }
 
+
     public void updateRpda() {
         rpda = rpdaViewModel.getRpda();
         this.invalidate();
     }
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -110,15 +112,17 @@ public class AutomatonCanvas extends View {
         return true;
     }
 
+
+
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
             pinchX = detector.getFocusX();
             pinchY = detector.getFocusY();
-            
             return true;
         }
+
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {

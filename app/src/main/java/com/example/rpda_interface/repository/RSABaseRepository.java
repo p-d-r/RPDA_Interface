@@ -1,5 +1,6 @@
 package com.example.rpda_interface.repository;
 
+import com.example.rpda_interface.RpdaUpdatedListener;
 import com.example.rpda_interface.model.automaton.RpdaSet;
 import com.example.rpda_interface.model.socketConnector.SocketConnector;
 import com.example.rpda_interface.model.action.ActionKind;
@@ -18,13 +19,17 @@ import java.util.Map;
 public class RSABaseRepository implements Runnable {
 
     private static ActionKind currentActionKind = ActionKind.NO_ACTION;
-    private VisualRPDA rpda;
+    public RpdaUpdatedListener rpdaUpdatedListener;
     private RPDAViewModel rpdaViewModel;
     public RpdaSet rpdaSet;
 
 
     public RSABaseRepository(RPDAViewModel rpdaViewModel) {
         this.rpdaViewModel = rpdaViewModel;
+    }
+
+    public void setRpdaUpdateListener(RpdaUpdatedListener rpdaUpdatedListener) {
+        this.rpdaUpdatedListener = rpdaUpdatedListener;
     }
 
     @Override
@@ -56,16 +61,9 @@ public class RSABaseRepository implements Runnable {
         }
     }
 
-    public VisualRPDA getRpda() {
-        return this.rpda;
-    }
-
     private synchronized void setCurrentActionKind(ActionKind actionKind) {
         currentActionKind = actionKind;
     }
-
-
-
 
     private void updateRpdaSet(String message) {
         //rpdaViewModel.generateNewRpda();
@@ -111,6 +109,8 @@ public class RSABaseRepository implements Runnable {
                 rpdaViewModel.handleStateAction(Integer.parseInt(id));
                 iterator.next();
         }
+
+        rpdaUpdatedListener.onDataReady();
     }
 
 
@@ -134,20 +134,6 @@ public class RSABaseRepository implements Runnable {
             rpdaSet.addRpda(name);
         }
     }
-
-    private void handleAction(String actionDesc) {
-        //Do conversion of messages here
-        ActionKind actionKind = getActionKindFromPrefix(actionDesc);
-        switch(actionKind) {
-            case MOVE: ;
-            case MOVE_ABS: break;
-            case MOVE_REL: break;
-            case MOVE_REL_OBJ: break;
-            case BRANCH: break;
-            case JUMP: break;
-        }
-    }
-
 
     /**
      * @param actionDesc Line that was communicated by socket-inputstream
