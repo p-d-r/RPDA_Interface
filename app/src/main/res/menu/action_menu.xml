@@ -8,6 +8,4 @@
             android:title="Create new Subtask" />
         <item android:id="@+id/switch_subtask"
             android:title="switch subtask"/>
-         <item android:id="@+id/update_automaton"
-             android:title="update_automaton"/>
     </menu>

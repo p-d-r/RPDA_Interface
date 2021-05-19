@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.rpda_interface.DataReadyListener;
 import com.example.rpda_interface.R;
 import com.example.rpda_interface.SubtaskSelectorAdapter;
 import com.example.rpda_interface.model.action.ActionKind;
@@ -33,16 +34,6 @@ public class SubtaskSelectorActivity extends Activity implements View.OnClickLis
         SubtaskSelectorAdapter adapter = new SubtaskSelectorAdapter(rpdaSet, this);
         rvRpdaSet.setAdapter(adapter);
         rvRpdaSet.setLayoutManager(new LinearLayoutManager(this));
-        /*ActionKind action;
-
-        try {
-            Intent data = getIntent();
-            String actionName = data.getStringExtra("action");
-            action = ActionKind.valueOf(actionName);
-        } catch(Exception e) {
-            System.err.println("activity-communication failed!");
-        }
-        */
     }
 
     @Override

@@ -2,6 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/push_pose"
         android:title="push current robot pose" />
+    <item android:id="@+id/push_absolute_pose"
+        android:title="push absolute pose"/>
     <item android:id="@+id/push_subtask"
         android:title="push subtask" />
     <item android:id="@+id/push_object_id"
