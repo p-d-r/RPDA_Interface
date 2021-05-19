@@ -1,5 +1,6 @@
 package com.example.rpda_interface.repository;
 
+import com.example.rpda_interface.DataReadyListener;
 import com.example.rpda_interface.model.automaton.RpdaSet;
 import com.example.rpda_interface.model.socketConnector.SocketConnector;
 import com.example.rpda_interface.model.action.ActionKind;
@@ -13,18 +14,26 @@ import java.io.PrintWriter;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.HashMap;
-import java.util.Map;
 
 public class RSABaseRepository implements Runnable {
 
     private static ActionKind currentActionKind = ActionKind.NO_ACTION;
-    private VisualRPDA rpda;
     private RPDAViewModel rpdaViewModel;
     public RpdaSet rpdaSet;
+    private DataReadyListener dataReadyListener;
+    private DataReadyListener setDataReadyListener;
 
 
     public RSABaseRepository(RPDAViewModel rpdaViewModel) {
         this.rpdaViewModel = rpdaViewModel;
+    }
+
+    public void setDataReadyListener(DataReadyListener dataReadyListener) {
+        this.dataReadyListener = dataReadyListener;
+    }
+
+    public void setSetDataReadyListener(DataReadyListener setDataReadyListener) {
+        this.setDataReadyListener = setDataReadyListener;
     }
 
     @Override
@@ -56,15 +65,10 @@ public class RSABaseRepository implements Runnable {
         }
     }
 
-    public VisualRPDA getRpda() {
-        return this.rpda;
-    }
 
     private synchronized void setCurrentActionKind(ActionKind actionKind) {
         currentActionKind = actionKind;
     }
-
-
 
 
     private void updateRpdaSet(String message) {
@@ -111,6 +115,8 @@ public class RSABaseRepository implements Runnable {
                 rpdaViewModel.handleStateAction(Integer.parseInt(id));
                 iterator.next();
         }
+
+        dataReadyListener.onDataReady();
     }
 
 
@@ -121,56 +127,24 @@ public class RSABaseRepository implements Runnable {
             String name = "";
             String id = "";
             while (iterator.next() != ',') {
-                if (iterator.current() == iterator.DONE)
+                if (iterator.current() == iterator.DONE) {
+                    setDataReadyListener.onDataReady();
                     return;
+                }
                 id += iterator.current();
             }
             while (iterator.next() != ';') {
-                if (iterator.current() == iterator.DONE)
+                if (iterator.current() == iterator.DONE) {
+                    setDataReadyListener.onDataReady();
                     return;
+                }
                 name += iterator.current();
             }
 
             rpdaSet.addRpda(name);
         }
-    }
 
-    private void handleAction(String actionDesc) {
-        //Do conversion of messages here
-        ActionKind actionKind = getActionKindFromPrefix(actionDesc);
-        switch(actionKind) {
-            case MOVE: ;
-            case MOVE_ABS: break;
-            case MOVE_REL: break;
-            case MOVE_REL_OBJ: break;
-            case BRANCH: break;
-            case JUMP: break;
-        }
-    }
-
-
-    /**
-     * @param actionDesc Line that was communicated by socket-inputstream
-     * @return corresponding ActionKind
-     */
-    private ActionKind getActionKindFromPrefix(String actionDesc) {
-        if (actionDesc == null)
-            return ActionKind.NO_ACTION;
-
-        String prefix = "";
-        for (int i = 0; i < actionDesc.length(); i++) {
-            prefix += actionDesc.charAt(i);
-            switch(prefix) {
-                case "MOVE_ABS": System.out.println("abs move received."); return ActionKind.MOVE_ABS;
-                case "MOVE_REL": System.out.println("rel move received."); return ActionKind.MOVE_REL;
-                case "MOVE_OBJ_REL": System.out.println("obj rel move received."); return ActionKind.MOVE_REL_OBJ;
-                case "BRANCH": System.out.println("branching-action received"); return ActionKind.BRANCH;
-                case "JUMP": System.out.println("jump-action received."); return ActionKind.JUMP;
-                case "QUIT": System.out.println("quit action received."); return ActionKind.QUIT;
-            }
-        }
-
-        return ActionKind.NO_ACTION;
+        setDataReadyListener.onDataReady();
     }
 
 
@@ -225,14 +199,7 @@ public class RSABaseRepository implements Runnable {
     }
 
 
-    public RpdaSet nextSet() {
-        try {
-            while (rpdaSet == null) {
-                Thread.sleep(200);
-            }
-        }catch(Exception e) {
-            ; //TODO add proper error handling
-        }
+    public RpdaSet getRpdaSet() {
         return rpdaSet;
     }
 }

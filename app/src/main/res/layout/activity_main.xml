@@ -34,7 +34,8 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pop" />
+            android:text="Pop"
+            android:onClick="popStackSymbol"/>
 
         <Button
             android:layout_width="wrap_content"
