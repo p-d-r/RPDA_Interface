@@ -22,7 +22,7 @@ import java.util.PriorityQueue;
 public class AutomatonCanvas extends View {
 
     private VisualRPDA rpda;
-    private Paint mPaint;
+    private Paint mPaint, aPaint, textPaint;
     private int screenWidth, screenHeight;
     private Context context;
     private float scaleFactor = 1;
@@ -41,13 +41,26 @@ public class AutomatonCanvas extends View {
         scaleListener = new ScaleGestureDetector(context, new ScaleListener());
 
         rpda = rpdaViewModel.getRpda();
+
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
-
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setColor(Color.BLACK);
         mPaint.setStrokeWidth(5);
+        mPaint.setTextSize(50);
 
+        textPaint = new Paint();
+        textPaint.setAntiAlias(true);
+        textPaint.setStyle(Paint.Style.STROKE);
+        textPaint.setStrokeWidth(2);
+        textPaint.setColor(Color.BLACK);
+        textPaint.setTextSize(50);
+
+        aPaint = new Paint();
+        aPaint.setAntiAlias(true);
+        aPaint.setStyle(Paint.Style.STROKE);
+        aPaint.setColor(Color.GREEN);
+        aPaint.setStrokeWidth(5);
         DisplayMetrics displayMetrics = new DisplayMetrics();
 
         ((Activity) getContext()).getWindowManager()
@@ -89,7 +102,7 @@ public class AutomatonCanvas extends View {
         usedIds.add(0);
 
         while (!closure.isEmpty()) {
-            List<VisualState> newstates = (closure.poll().printStateAndTransitions(canvas, mPaint));
+            List<VisualState> newstates = (closure.poll().printStateAndTransitions(canvas, mPaint, aPaint, textPaint));
             for (VisualState staten:newstates) {
                 if (!usedIds.contains(staten.getId())) {
                     closure.add(staten);

@@ -14,6 +14,7 @@ public class VisualState implements Comparable
     private PointF centerPosition;
     private boolean isBranchingState;
     private int verticalOffset;
+    boolean current;
 
 
 
@@ -66,10 +67,6 @@ public class VisualState implements Comparable
         return transitions.size();
     }
 
-    public ArrayList<VisualTransition> getTransitions() {
-        return transitions;
-    }
-
     public void addTransition(VisualTransition trans) {
         transitions.add(trans);
         if (transitions.size() > 1)
@@ -86,29 +83,50 @@ public class VisualState implements Comparable
         transitions.remove(trans);
     }
 
-    public void removeTransition(VisualState target) {
-        for (VisualTransition trans : transitions) {
-            if (trans.getTarget().equals(target)) {
-                transitions.remove(trans);
-            }
-        }
-    }
-
-
     public boolean willChangeToBranchingState() {
         return transitions.size() >= 1;
     }
 
-    public List<VisualState> printStateAndTransitions(Canvas canvas, Paint statePaint) {
-        canvas.drawCircle(this.centerPosition.x, this.centerPosition.y, 75, statePaint);
+    public List<VisualState> printStateAndTransitions(Canvas canvas, Paint mPaint, Paint aPaint, Paint textPaint) {
+        int rad = 50;
 
-        for (VisualTransition trans : transitions) {
-            canvas.drawLine(this.centerPosition.x, this.centerPosition.y, trans.getTarget().getCenterPosition().x, trans.getTarget().getCenterPosition().y, statePaint);
+        if (current) {
+            canvas.drawText(Integer.toString(id), this.centerPosition.x - 25, this.centerPosition.y + 25, textPaint);
+            canvas.drawCircle(this.centerPosition.x, this.centerPosition.y, rad, aPaint);
+        } else {
+            canvas.drawText(Integer.toString(id), this.centerPosition.x - 25, this.centerPosition.y + 25, textPaint);
+            canvas.drawCircle(this.centerPosition.x, this.centerPosition.y, rad, mPaint);
         }
 
-        return getSuccessorStates();
-    }
 
+        for (VisualTransition trans : transitions) {
+            if (trans.getTarget().getId() < id && centerPosition.y == trans.getTarget().getCenterPosition().y) {
+
+            } else {
+                PointF p = new PointF(centerPosition.x - trans.getTarget().getCenterPosition().x,
+                        centerPosition.y - trans.getTarget().getCenterPosition().y);
+
+                double len = Math.sqrt((double) ((Math.pow((centerPosition.x - trans.getTarget().getCenterPosition().x), 2)
+                        + Math.pow(centerPosition.y - trans.getTarget().getCenterPosition().y, 2))));
+
+                PointF trnsMiddle = new PointF((float) ((p.x / len) * len / 4), (float) ((p.y / len) * len / 2));
+
+                p.x = (float) (p.x / len) * rad;
+                p.y = (float) (p.y / len) * rad;
+
+                canvas.drawLine(this.centerPosition.x - p.x, this.centerPosition.y - p.y,
+                        trans.getTarget().getCenterPosition().x + p.x,
+                        trans.getTarget().getCenterPosition().y + p.y, mPaint);
+
+                canvas.drawText("move absolute", centerPosition.x - trnsMiddle.x, centerPosition.y - trnsMiddle.y, textPaint);
+            /*canvas.drawLine(this.centerPosition.x, this.centerPosition.y,
+                            trans.getTarget().getCenterPosition().x,
+                            trans.getTarget().getCenterPosition().y, mPaint);*/
+            }
+
+            return getSuccessorStates();
+        }
+    }
 
 
     @Override
