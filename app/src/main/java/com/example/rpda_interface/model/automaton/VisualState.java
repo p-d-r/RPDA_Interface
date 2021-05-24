@@ -101,7 +101,7 @@ public class VisualState implements Comparable
 
         for (VisualTransition trans : transitions) {
             if (trans.getTarget().getId() < id && centerPosition.y == trans.getTarget().getCenterPosition().y) {
-
+                ;
             } else {
                 PointF p = new PointF(centerPosition.x - trans.getTarget().getCenterPosition().x,
                         centerPosition.y - trans.getTarget().getCenterPosition().y);
@@ -123,9 +123,8 @@ public class VisualState implements Comparable
                             trans.getTarget().getCenterPosition().x,
                             trans.getTarget().getCenterPosition().y, mPaint);*/
             }
-
-            return getSuccessorStates();
         }
+        return getSuccessorStates();
     }
 
 

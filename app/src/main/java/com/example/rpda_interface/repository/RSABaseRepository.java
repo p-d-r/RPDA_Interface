@@ -1,5 +1,6 @@
 package com.example.rpda_interface.repository;
 
+import com.example.rpda_interface.ConnectionFailedListener;
 import com.example.rpda_interface.DataReadyListener;
 import com.example.rpda_interface.model.automaton.RpdaSet;
 import com.example.rpda_interface.model.socketConnector.SocketConnector;
@@ -22,6 +23,7 @@ public class RSABaseRepository implements Runnable {
     public RpdaSet rpdaSet;
     private DataReadyListener dataReadyListener;
     private DataReadyListener setDataReadyListener;
+    private ConnectionFailedListener connectionFailedListener;
 
 
     public RSABaseRepository(RPDAViewModel rpdaViewModel) {
@@ -36,11 +38,16 @@ public class RSABaseRepository implements Runnable {
         this.setDataReadyListener = setDataReadyListener;
     }
 
+    public void setConnectionFailedListener(ConnectionFailedListener connectionFailedListener) {
+        this.connectionFailedListener = connectionFailedListener;
+    }
+
     @Override
     public void run() {
         try {
             SocketConnector.initializeSocket();
         } catch (IOException e) {
+            connectionFailedListener.onConnectionFailed();
             return;
         }
         InputStreamReader receiver;
@@ -60,8 +67,10 @@ public class RSABaseRepository implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("RSABaseRepository-Thread " + Thread.currentThread().getId() + " will be shut down due to error.");
+            connectionFailedListener.onConnectionFailed();
         } catch (NullPointerException e) {
             System.err.println("Error in InputStream / Reader!");
+            connectionFailedListener.onConnectionFailed();
         }
     }
 
@@ -164,12 +173,14 @@ public class RSABaseRepository implements Runnable {
                 } catch (IOException e) {
                     e.printStackTrace(); //TODO handle connection loss -> try reconnect or the like
                     currentActionKind = formerActionKind;
-                    System.err.println("Invariant violated, try resetting connection");
+                    connectionFailedListener.onConnectionFailed();
+                    return;
                 }
             };
             new Thread(task).start();
         } catch (Exception e) {
             e.printStackTrace();
+            connectionFailedListener.onConnectionFailed();
         }
     }
 
@@ -189,12 +200,14 @@ public class RSABaseRepository implements Runnable {
                 } catch (IOException e) {
                     e.printStackTrace(); //TODO handle connection loss -> try reconnect or the like
                     currentActionKind = formerActionKind;
-                    System.err.println("Invariant violated, try resetting connection");
+                    connectionFailedListener.onConnectionFailed();
+                    return;
                 }
             };
             new Thread(task).start();
         } catch (Exception e) {
             e.printStackTrace();
+            connectionFailedListener.onConnectionFailed();
         }
     }
 

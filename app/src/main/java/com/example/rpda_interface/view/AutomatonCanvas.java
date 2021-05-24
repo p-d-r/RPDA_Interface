@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -28,6 +29,7 @@ public class AutomatonCanvas extends View {
     private float scaleFactor = 1;
     private ScaleGestureDetector scaleListener;
     private RPDAViewModel rpdaViewModel;
+    private Matrix matrix;
     float pinchX;
     float pinchY;
     float scrollX;
@@ -68,6 +70,8 @@ public class AutomatonCanvas extends View {
                 .getMetrics(displayMetrics);
 
 
+        matrix = new Matrix();
+
         screenWidth = displayMetrics.widthPixels;
         screenHeight = displayMetrics.heightPixels;
     }
@@ -77,7 +81,7 @@ public class AutomatonCanvas extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        setMeasuredDimension(5000, 5000);
+        setMeasuredDimension(8000, 5000);
     }
 
 
@@ -85,13 +89,22 @@ public class AutomatonCanvas extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        //canvas.save();
-        float x = (pinchX + scrollX);
-        float y = (pinchY + scrollY);
-        canvas.scale(scaleFactor, scaleFactor, (pinchX+scrollX), pinchY + scrollY);
-        canvas.drawARGB(255, 255, 255, 255);
-        printRPDAState(canvas);
-        //canvas.restore();
+        float maxScale = 1.2f;
+        float minScale = 0.9f;
+        //if (scaleFactor != maxScale && scaleFactor != minScale) {
+            canvas.save();
+            float x = (pinchX + scrollX);
+            float y = (pinchY + scrollY);
+            canvas.scale(scaleFactor, scaleFactor, Math.min(pinchX, 5000), Math.min(pinchY, 5000));
+            //canvas.concat(matrix);
+            canvas.drawARGB(255, 255, 255, 255);
+            printRPDAState(canvas);
+            canvas.restore();
+        //}
+
+        canvas.drawRect(200,200,7800, 4800, mPaint);
+        System.out.println("x: " + pinchX + "   y: " + pinchY + "         scale: " + scaleFactor);
+        if (rpda != null) System.out.println(rpda.getLatestCoordinates());
     }
 
 
@@ -121,8 +134,7 @@ public class AutomatonCanvas extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        scaleListener.onTouchEvent(event);
-        return true;
+        return scaleListener.onTouchEvent(event);
     }
 
 
@@ -133,16 +145,27 @@ public class AutomatonCanvas extends View {
         public boolean onScaleBegin(ScaleGestureDetector detector) {
             pinchX = detector.getFocusX();
             pinchY = detector.getFocusY();
+            System.out.println("begin");
             return true;
         }
 
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            float maxScale = 5;
-            scaleFactor *= Math.min(detector.getScaleFactor(), maxScale);
+            float maxScale = 1.2f;
+            float minScale = 0.9f;
+            float tempScale =  detector.getScaleFactor() * scaleFactor;
+            scaleFactor = Math.max(minScale, Math.min(tempScale, maxScale));
+            if (scaleFactor != maxScale && scaleFactor != minScale)
+                matrix.postScale(scaleFactor, scaleFactor, pinchX, pinchY);
             invalidate();
             return true;
+        }
+
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+            System.out.println("end");
         }
 
     }

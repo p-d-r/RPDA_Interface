@@ -141,4 +141,8 @@ public class VisualRPDA
 
         return maxOffset;
     }
+
+    public String getLatestCoordinates() {
+        return "Position:  x:  " + states.get(states.size()-1).getCenterPosition().x + "     y: " + states.get(states.size()-1).getCenterPosition().y;
+    }
 }

@@ -3,6 +3,7 @@ package com.example.rpda_interface.view;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Looper;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,16 +15,18 @@ import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import com.example.rpda_interface.ConnectionFailedListener;
 import com.example.rpda_interface.DataReadyListener;
 import com.example.rpda_interface.R;
 import com.example.rpda_interface.model.action.ActionKind;
 import com.example.rpda_interface.model.automaton.RpdaSet;
+import com.example.rpda_interface.model.socketConnector.SocketConnector;
 import com.example.rpda_interface.repository.RSABaseRepository;
 import com.example.rpda_interface.viewmodel.RPDAViewModel;
 
 
-public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickListener, DataReadyListener
-{
+public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickListener,
+                                                      DataReadyListener, ConnectionFailedListener {
 
     private LinearLayout containerLayout;
     private EditText linkStateText;
@@ -53,6 +56,7 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
                 }
             }
         });
+        rsaBaseRepo.setConnectionFailedListener(this);
 
         Thread concurrentActionListener = new Thread(rsaBaseRepo);
         concurrentActionListener.start();
@@ -74,7 +78,8 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
             @Override
             public boolean onTouchEvent(MotionEvent event) {
                 boolean  f = content.onTouchEvent(event);
-                return super.onTouchEvent(event);
+                super.onTouchEvent(event);
+                return true;
             }
         };
 
@@ -109,6 +114,7 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
         horizontalScroller.addView(automatonCanvas);
         verticalScroller.addView(horizontalScroller);
         containerLayout.addView(verticalScroller);
+
 
         horizontalScroller.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
@@ -234,15 +240,20 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        //int selectedRpdaId = data.getIntExtra("rpda_id", 0);
-        //rsaBaseRepo.sendActionInfo(ActionKind.SWITCH_SUBTASK);
-        String selectedRpdaName = data.getStringExtra("resName");
-        ActionKind actionKind = ActionKind.valueOf(data.getStringExtra("action_name"));
-        if (actionKind == ActionKind.SWITCH_SUBTASK) {
-            rsaBaseRepo.sendActionInfo(actionKind, selectedRpdaName);
-        } else if (actionKind == ActionKind.PUSH_SUBTASK) {
-            rsaBaseRepo.sendActionInfo(actionKind, selectedRpdaName);
+        switch(requestCode) {
+            case 0:
+                String selectedRpdaName = data.getStringExtra("resName");
+                ActionKind actionKind = ActionKind.valueOf(data.getStringExtra("action_name"));
+                if (actionKind == ActionKind.SWITCH_SUBTASK) {
+                    rsaBaseRepo.sendActionInfo(actionKind, selectedRpdaName);
+                } else if (actionKind == ActionKind.PUSH_SUBTASK) {
+                    rsaBaseRepo.sendActionInfo(actionKind, selectedRpdaName);
+                } break;
+            case 1:
+                String ip = data.getStringExtra("target_ip");
+                SocketConnector.dyn_ip_ipv4=ip; break;
         }
+
     }
 
 
@@ -253,5 +264,34 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
         intent.putExtra("action_name", setAction.name());
         intent.putExtra("rpdaSet", rpdaSet);
         startActivityForResult(intent, 0);
+    }
+
+    public void showOptionsActivity(View view) {
+        Intent intent = new Intent(this, OptionsActivity.class);
+        startActivityForResult(intent, 1);
+    }
+
+    @Override
+    public void onConnectionFailed() {
+        Looper.prepare();
+        int duration = Toast.LENGTH_SHORT;
+        Toast toast = Toast.makeText(this, "Connection Failed. Please check Network. Reconnecting...", duration);
+        toast.show();
+/*
+        rsaBaseRepo = new RSABaseRepository(rpdaViewModel);
+        rsaBaseRepo.setSetDataReadyListener(this);
+        rsaBaseRepo.setDataReadyListener(new DataReadyListener() {
+            @Override
+            public void onDataReady() {
+                if (automatonCanvas != null) {
+                    automatonCanvas.updateRpda();
+                }
+            }
+        });
+
+        rsaBaseRepo.setConnectionFailedListener(this);
+
+        Thread concurrentActionListener = new Thread(rsaBaseRepo);
+        concurrentActionListener.start();*/
     }
 }

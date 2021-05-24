@@ -17,18 +17,18 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="undo..."
+            android:text="undo"
             android:onClick="undoAction"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="redo..."
+            android:text="redo"
             android:onClick="redoAction"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Push..."
+            android:text="Push.."
             android:onClick="showPushActionMenu"/>
 
         <Button
@@ -40,7 +40,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Actions..."
+            android:text="Actions.."
             android:onClick="showActionMenu"/>
 
         <Button
@@ -58,6 +58,11 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:id="@+id/linkStateInput" />
+        <Button
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/optionsButton"
+            android:onClick="showOptionsActivity"/>
     </LinearLayout>
 
 </LinearLayout>

@@ -6,12 +6,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class SocketConnector {
 
     private static final int portNumber = 6666;
     private static final String TARGET_IP_IPV4 = "192.168.0.2";
+    public static String dyn_ip_ipv4 = null;
     //private static final String TARGET_IP_IPV4 = "192.168.100.107";
     //private static final String TARGET_IP_IPV6 = " 2a02:810d:8f40:971:cda3:e5ee:19ab:982b";
 
@@ -24,7 +24,10 @@ public class SocketConnector {
 
     public static void initializeSocket() throws IOException {
         try {
-            clientSocket = new Socket(TARGET_IP_IPV4, portNumber);
+            if (dyn_ip_ipv4 == null)
+                clientSocket = new Socket(TARGET_IP_IPV4, portNumber);
+            else
+                clientSocket = new Socket(TARGET_IP_IPV4, portNumber);
             inputStream = clientSocket.getInputStream();
             receiverReader = new InputStreamReader(inputStream);
             outputStream  = clientSocket.getOutputStream();
