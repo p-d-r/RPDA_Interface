@@ -14,7 +14,7 @@ public class VisualState implements Comparable
     private PointF centerPosition;
     private boolean isBranchingState;
     private int verticalOffset;
-    boolean current;
+    public boolean current;
 
 
 

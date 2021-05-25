@@ -69,7 +69,7 @@ public class RSABaseRepository implements Runnable {
             System.err.println("RSABaseRepository-Thread " + Thread.currentThread().getId() + " will be shut down due to error.");
             connectionFailedListener.onConnectionFailed();
         } catch (NullPointerException e) {
-            System.err.println("Error in InputStream / Reader!");
+            e.printStackTrace();
             connectionFailedListener.onConnectionFailed();
         }
     }
@@ -94,10 +94,15 @@ public class RSABaseRepository implements Runnable {
         iterator.next();
         //rpda = new VisualRPDA(name);
         HashMap<Integer, Integer> transitions = new HashMap<>();
+        boolean currentState = false;
 
         while(iterator.current() != CharacterIterator.DONE) {
                 String id = "";
                 while (iterator.current() != ',') {
+                    if (iterator.current() == 'C') {
+                        currentState = true;
+                        iterator.next();
+                    }
                     id += iterator.current();
                     iterator.next();
                 }
@@ -121,10 +126,15 @@ public class RSABaseRepository implements Runnable {
                       iterator.next();
                 }
 
+                //rpdaViewModel.handleStateAction(Integer.parseInt(id));
                 rpdaViewModel.handleStateAction(Integer.parseInt(id));
+                if (currentState)
+                    rpdaViewModel.setCurrent(Integer.parseInt(id));
+                currentState = false;
                 iterator.next();
         }
 
+        rpdaViewModel.generateTransitions(transitions);
         dataReadyListener.onDataReady();
     }
 

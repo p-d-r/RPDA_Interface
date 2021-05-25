@@ -13,6 +13,8 @@ import com.example.rpda_interface.model.automaton.VisualState;
 import com.example.rpda_interface.model.automaton.VisualTransition;
 import com.example.rpda_interface.repository.RSABaseRepository;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 
@@ -45,12 +47,25 @@ public class RPDAViewModel {
     }
 
     public void handleStateAction(int id) {
-
-        PointF coordinates = new PointF();
-        coordinates.x = rpda.getCurrentX() + VisualConstants.getTransitionLengthX(context);
+        rpda.addStatePure(new VisualState(id));
+        System.out.println("added state with id " + id );
+       /* PointF coordinates = new PointF();
+        coordinates.x = rpda.getCurrentX() + VisualConstants.transitionLengthX;
         int offset = computeVerticalOffset(context);
-        coordinates.y = VisualConstants.INITIAL_STATE_POSITION.y + offset * VisualConstants.getTransitionOffsetY(context);
-        undoActions.push(new StateAction(rpda.addState(new VisualState(id, coordinates, offset))));
+        coordinates.y = VisualConstants.INITIAL_STATE_POSITION.y + offset * VisualConstants.transitionOffsetY;
+        undoActions.push(new StateAction(rpda.addState(new VisualState(id, coordinates, offset))));*/
+    }
+
+    public void generateTransitions(HashMap<Integer, Integer> transitions) {
+        for (Map.Entry<Integer, Integer> transition : transitions.entrySet()) {
+            rpda.insertLink(rpda.getState(transition.getKey()), rpda.getState(transition.getValue()));
+            System.out.println("Linked " + transition.getKey() + " to " + transition.getValue());
+        }
+    }
+
+    public void setCurrent(int id) {
+        rpda.setCurrentState(rpda.getState(id));
+        rpda.getState(id).current = true;
     }
 
     public boolean handleLinkAction(int id) {

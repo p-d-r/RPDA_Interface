@@ -62,7 +62,22 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:id="@+id/optionsButton"
-            android:onClick="showOptionsActivity"/>
+            android:onClick="showOptionsActivity"
+            android:text="Options.."/>
+
+        <Button
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/linkByTap"
+            android:onClick="setLinkByTap"
+            android:text="LinkByTap"/>
+
+        <Button
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/play"
+            android:onClick="execute"
+            android:text="play"/>
     </LinearLayout>
 
 </LinearLayout>

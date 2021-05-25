@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.example.rpda_interface.ConnectionFailedListener;
 import com.example.rpda_interface.DataReadyListener;
+import com.example.rpda_interface.LinkInsertedListener;
 import com.example.rpda_interface.R;
 import com.example.rpda_interface.model.action.ActionKind;
 import com.example.rpda_interface.model.automaton.RpdaSet;
@@ -26,7 +27,8 @@ import com.example.rpda_interface.viewmodel.RPDAViewModel;
 
 
 public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickListener,
-                                                      DataReadyListener, ConnectionFailedListener {
+                                                      DataReadyListener, ConnectionFailedListener,
+                                                      LinkInsertedListener {
 
     private LinearLayout containerLayout;
     private EditText linkStateText;
@@ -46,6 +48,7 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
         setContentView(R.layout.activity_main);
         rpdaViewModel = new RPDAViewModel(this);
         automatonCanvas = new AutomatonCanvas(this, rpdaViewModel);
+        automatonCanvas.setLinkInsertedListener(this);
         rsaBaseRepo = new RSABaseRepository(rpdaViewModel);
         rsaBaseRepo.setSetDataReadyListener(this);
         rsaBaseRepo.setDataReadyListener(new DataReadyListener() {
@@ -138,6 +141,11 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
         automatonCanvas.invalidate();
     }
 
+public boolean execute(View v) {
+        rsaBaseRepo.sendActionInfo(ActionKind.EXECUTE);
+        return true;
+}
+
 
     public void linkState(View view) {
         int id;
@@ -218,6 +226,9 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
                 case R.id.push_absolute_pose:
                     rsaBaseRepo.sendActionInfo(ActionKind.PUSH_ABSOLUTE_POSE);
                     return true;
+                case R.id.zoom_restore:
+                    automatonCanvas.restoreDefaultZoom();
+                    return true;
                 default:
                     return false;
             }
@@ -278,6 +289,11 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
         Toast toast = Toast.makeText(this, "Connection Failed. Please check Network. Reconnecting...", duration);
         toast.show();
 /*
+        try {
+            Thread.sleep(1000);
+        } catch(InterruptedException e) {
+            return;
+        }
         rsaBaseRepo = new RSABaseRepository(rpdaViewModel);
         rsaBaseRepo.setSetDataReadyListener(this);
         rsaBaseRepo.setDataReadyListener(new DataReadyListener() {
@@ -293,5 +309,14 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
 
         Thread concurrentActionListener = new Thread(rsaBaseRepo);
         concurrentActionListener.start();*/
+    }
+
+    public void setLinkByTap(View view) {
+        automatonCanvas.linkByTap = 0;
+    }
+
+    @Override
+    public void onLinkInserted(int targetId) {
+        rsaBaseRepo.sendActionInfo(ActionKind.INSERT_LINK, Integer.toString(targetId));
     }
 }
