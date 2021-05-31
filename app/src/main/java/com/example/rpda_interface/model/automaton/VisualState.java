@@ -101,7 +101,8 @@ public class VisualState implements Comparable
 
         for (VisualTransition trans : transitions) {
             if (trans.getTarget().getId() < id && centerPosition.y == trans.getTarget().getCenterPosition().y) {
-                ;
+                float length = Math.abs(centerPosition.x - trans.getTarget().getCenterPosition().x);
+                canvas.drawArc(trans.getTarget().getCenterPosition().x,  centerPosition.y -350-length/30, centerPosition.x, centerPosition.y+350+length/30 ,180, 180, false, mPaint);
             } else {
                 PointF p = new PointF(centerPosition.x - trans.getTarget().getCenterPosition().x,
                         centerPosition.y - trans.getTarget().getCenterPosition().y);

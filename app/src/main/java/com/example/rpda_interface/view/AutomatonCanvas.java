@@ -101,6 +101,7 @@ public class AutomatonCanvas extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+
         canvas.save();
         float x = (pinchX + scrollX);
         float y = (pinchY + scrollY);
@@ -110,6 +111,7 @@ public class AutomatonCanvas extends View {
         printRPDAState(canvas);
         canvas.restore();
 
+        //canvas.drawArc(200, 100, 2000, 1000,180, 180, false, aPaint);
         canvas.drawRect(100,100,7900, 4900, mPaint);
         if (rpda != null && rpda.name != null)
             canvas.drawText(rpda.name, 100, 100, mPaint);
@@ -137,7 +139,7 @@ public class AutomatonCanvas extends View {
 
     public void updateRpda() {
         rpda = rpdaViewModel.getRpda();
-        rpda.computeStatePositionsDepthFirst(new ArrayList<Integer>(), rpda.getInitialState(), null, 0);
+        rpda.computeStatePositionsDepthFirst(new HashSet<Integer>(), rpda.getInitialState(), null, 0);
         this.invalidate();
     }
 

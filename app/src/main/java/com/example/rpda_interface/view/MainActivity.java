@@ -132,19 +132,22 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
                 automatonCanvas.scrollY = verticalScroller.getScrollY();
             }
         });
+
+
+        rpdaViewModel.generateTestRpda();
+        automatonCanvas.updateRpda();
     }
 
 
     public void createState(View view) {
-        rpdaViewModel.handleStateAction(ids);
-        ids++;
+        automatonCanvas.updateRpda();
         automatonCanvas.invalidate();
     }
 
-public boolean execute(View v) {
+    public boolean execute(View v) {
         rsaBaseRepo.sendActionInfo(ActionKind.EXECUTE);
         return true;
-}
+    }
 
 
     public void linkState(View view) {
