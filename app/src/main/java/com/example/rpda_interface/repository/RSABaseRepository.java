@@ -12,8 +12,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class RSABaseRepository implements Runnable {
@@ -93,7 +95,11 @@ public class RSABaseRepository implements Runnable {
         rpdaViewModel.generateNewRpda(name);
         iterator.next();
         //rpda = new VisualRPDA(name);
-        HashMap<Integer, Integer> transitions = new HashMap<>();
+       // HashMap<Integer, Integer> transitions = new HashMap<>();
+        ArrayList<Integer> origins = new ArrayList<>();
+        ArrayList<Integer> targets = new ArrayList<>();
+        ArrayList<String> actions = new ArrayList<>();
+        //HashMap<Integer, String> actions = new HashMap<>();
         boolean currentState = false;
 
         while(iterator.current() != CharacterIterator.DONE) {
@@ -121,12 +127,27 @@ public class RSABaseRepository implements Runnable {
                         iterator.next();
                     }
 
-                    transitions.put(Integer.parseInt(id), Integer.parseInt(targetId));
+                    iterator.next();
+
+                    String actionKind = "";
+                    while (iterator.current() != ',') {
+                        if (iterator.current() == ';') {
+                            sem=true;
+                            break;
+                        }
+                        actionKind += iterator.current();
+                        iterator.next();
+                    }
+
+                    //transitions.put(Integer.parseInt(id), Integer.parseInt(targetId));
+                    origins.add(Integer.parseInt(id));
+                    targets.add(Integer.parseInt(targetId));
+                    actions.add(actionKind);
+                    //actions.put(Integer.parseInt(id), actionKind);
                     if (!sem)
                       iterator.next();
                 }
 
-                //rpdaViewModel.handleStateAction(Integer.parseInt(id));
                 rpdaViewModel.handleStateAction(Integer.parseInt(id));
                 if (currentState)
                     rpdaViewModel.setCurrent(Integer.parseInt(id));
@@ -134,7 +155,7 @@ public class RSABaseRepository implements Runnable {
                 iterator.next();
         }
 
-        rpdaViewModel.generateTransitions(transitions);
+        rpdaViewModel.generateTransitions(origins, targets, actions);
         dataReadyListener.onDataReady();
     }
 

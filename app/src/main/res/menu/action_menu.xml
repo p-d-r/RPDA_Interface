@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
     <menu xmlns:android="http://schemas.android.com/apk/res/android">
+        <item android:id="@+id/branch"
+            android:title="branch" />
         <item android:id="@+id/scan_object"
             android:title="Scan for Object" />
         <item android:id="@+id/gripper_action"

@@ -51,6 +51,13 @@ public class VisualRPDA
     }
 
 
+    public VisualTransition insertLink(VisualState origin, VisualState target, String action) {
+        VisualTransition trans = new VisualTransition(origin, target, action);
+        origin.addTransition(trans);
+        return trans;
+    }
+
+
     public void insertLink(VisualState target) {
         currentState.addTransition(target);
         currentState = target;

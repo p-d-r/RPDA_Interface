@@ -1,12 +1,10 @@
 package com.example.rpda_interface.model.automaton;
 
-import com.example.rpda_interface.model.action.ActionKind;
-
 public class VisualTransition
 {
     private VisualState origin;
     private VisualState target;
-    private ActionKind action;
+    private String action;
     private static int numberOfTransitions;
     private int id;
 
@@ -15,8 +13,17 @@ public class VisualTransition
         numberOfTransitions++;
         this.origin = origin;
         this.target = target;
+        this.action = "no info";
     }
 
+
+    VisualTransition(VisualState origin, VisualState target, String action) {
+        this.id = numberOfTransitions;
+        numberOfTransitions++;
+        this.origin = origin;
+        this.target = target;
+        this.action = action;
+    }
 
 
     public VisualState getOrigin() {
@@ -26,4 +33,6 @@ public class VisualTransition
     public VisualState getTarget() {
         return target;
     }
+
+    public String getAction() { return action; }
 }

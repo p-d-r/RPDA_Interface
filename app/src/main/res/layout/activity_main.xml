@@ -17,30 +17,25 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="undo"
-            android:onClick="undoAction"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="redo"
-            android:onClick="redoAction"/>
+            android:text="move.."
+            android:onClick="showMoveActionMenu"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Push.."
+            android:text="push.."
             android:onClick="showPushActionMenu"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pop"
-            android:onClick="popStackSymbol"/>
+            android:text="pop.."
+            android:onClick="showPopActionMenu"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Actions.."
+            android:text="actions.."
             android:onClick="showActionMenu"/>
 
         <Button

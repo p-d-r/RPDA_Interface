@@ -1,6 +1,8 @@
 package com.example.rpda_interface.view;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
@@ -134,8 +136,8 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
         });
 
 
-        rpdaViewModel.generateTestRpda();
-        automatonCanvas.updateRpda();
+        //rpdaViewModel.generateTestRpda();
+        //automatonCanvas.updateRpda();
     }
 
 
@@ -143,6 +145,7 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
         automatonCanvas.updateRpda();
         automatonCanvas.invalidate();
     }
+
 
     public boolean execute(View v) {
         rsaBaseRepo.sendActionInfo(ActionKind.EXECUTE);
@@ -173,35 +176,9 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
     }
 
 
-    public void undoAction(View view) {
-        rpdaViewModel.undo();
-        automatonCanvas.invalidate();
-    }
-
-
-    public void redoAction(View view) {
-        rpdaViewModel.redo();
-        automatonCanvas.invalidate();
-    }
-
-
-    public void showPushActionMenu(View v) {
-        PopupMenu popup = new PopupMenu(this, v);
-        popup.setOnMenuItemClickListener(MainActivity.this);
-        popup.inflate(R.menu.push_action_menu);
-        popup.show();
-    }
-
-
-    public void popStackSymbol(View view) {
-        rsaBaseRepo.sendActionInfo(ActionKind.POP);
-    }
-
-
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         try {
-            Intent data;
             switch (item.getItemId()) {
                 case R.id.push_pose:
                     rsaBaseRepo.sendActionInfo(ActionKind.PUSH_POSE);
@@ -210,7 +187,7 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
                     rsaBaseRepo.sendActionInfo(ActionKind.PUSH_OBJ_ID);
                     return true;
                 case R.id.scan_object:
-                    rsaBaseRepo.sendActionInfo(ActionKind.SAMPLE_ADD);
+                    rsaBaseRepo.sendActionInfo(ActionKind.SCAN_FOR_OBJ);
                     return true;
                 case R.id.gripper_action:
                     rsaBaseRepo.sendActionInfo(ActionKind.GRIPPER);
@@ -232,6 +209,46 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
                 case R.id.zoom_restore:
                     automatonCanvas.restoreDefaultZoom();
                     return true;
+                case R.id.pop_pose:
+                    rsaBaseRepo.sendActionInfo(ActionKind.POP);
+                    return true;
+                case R.id.pop_subtask:
+                    rsaBaseRepo.sendActionInfo(ActionKind.POP);
+                    return true;
+                case R.id.pop_object_id:
+                    rsaBaseRepo.sendActionInfo(ActionKind.POP);
+                    return true;
+                case R.id.move_abs:
+                    rsaBaseRepo.sendActionInfo(ActionKind.MOVE_ABS);
+                    return true;
+                case R.id.move_relative:
+                    rsaBaseRepo.sendActionInfo(ActionKind.MOVE_REL);
+                    return true;
+                case R.id.move_rel_obj:
+                    rsaBaseRepo.sendActionInfo(ActionKind.MOVE_REL_OBJ);
+                    return true;
+                case R.id.branch:
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setMessage("on which criteria should the new branch be chosen?");
+                    builder.setPositiveButton("only perceived object", (dialog, id)
+                            -> rsaBaseRepo.sendActionInfo(ActionKind.BRANCH, "p"));
+                    builder.setNegativeButton("only topmost stack-symbol", (dialog, id)
+                            -> rsaBaseRepo.sendActionInfo(ActionKind.BRANCH, "s"));
+                    builder.setNeutralButton("both", (dialog, id)
+                            -> rsaBaseRepo.sendActionInfo(ActionKind.BRANCH));
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+
+                    AlertDialog.Builder newBuilder = new AlertDialog.Builder(this);
+                    builder.setMessage("Do you want to push the perceived object-id?");
+                    builder.setPositiveButton("yes", (newDialog, id)
+                            -> rsaBaseRepo.sendActionInfo(ActionKind.PUSH_OBJ_ID));
+                    builder.setNegativeButton("No", (newDialog, which) -> {
+                        return;
+                    });
+                    AlertDialog newDialog = builder.create();
+                    newDialog.show();
+                    return true;
                 default:
                     return false;
             }
@@ -246,6 +263,30 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
         PopupMenu popup = new PopupMenu(this, v);
         popup.setOnMenuItemClickListener(MainActivity.this);
         popup.inflate(R.menu.action_menu);
+        popup.show();
+    }
+
+
+    public void showPushActionMenu(View v) {
+        PopupMenu popup = new PopupMenu(this, v);
+        popup.setOnMenuItemClickListener(MainActivity.this);
+        popup.inflate(R.menu.push_action_menu);
+        popup.show();
+    }
+
+
+    public void showPopActionMenu(View v) {
+        PopupMenu popup = new PopupMenu(this, v);
+        popup.setOnMenuItemClickListener(MainActivity.this);
+        popup.inflate(R.menu.pop_action_menu);
+        popup.show();
+    }
+
+
+    public void showMoveActionMenu(View v) {
+        PopupMenu popup = new PopupMenu(this, v);
+        popup.setOnMenuItemClickListener(MainActivity.this);
+        popup.inflate(R.menu.move_action_menu);
         popup.show();
     }
 

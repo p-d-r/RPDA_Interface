@@ -21,6 +21,7 @@ public enum ActionKind {
     REQUEST_SET_INFO,
     PUSH_ABSOLUTE_POSE,
     INSERT_LINK,
+    SCAN_FOR_OBJ,
     UPDATE_AUTOMATON,
     FETCH_RPDA_SET,
     TAKE_POSE,

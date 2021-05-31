@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/move_abs"
+        android:title="move to absolute pose" />
+    <item android:id="@+id/move_relative"
+        android:title="move relative to current pose"/>
+    <item android:id="@+id/move_rel_obj"
+        android:title="move relative to object" />
+</menu>

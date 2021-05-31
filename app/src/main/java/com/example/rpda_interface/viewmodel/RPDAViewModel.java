@@ -14,6 +14,8 @@ import com.example.rpda_interface.model.automaton.VisualTransition;
 import com.example.rpda_interface.repository.RSABaseRepository;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -56,10 +58,16 @@ public class RPDAViewModel {
         undoActions.push(new StateAction(rpda.addState(new VisualState(id, coordinates, offset))));*/
     }
 
-    public void generateTransitions(HashMap<Integer, Integer> transitions) {
+    public void generateTransitions(HashMap<Integer, Integer> transitions, HashMap<Integer, String> actions) {
         for (Map.Entry<Integer, Integer> transition : transitions.entrySet()) {
-            rpda.insertLink(rpda.getState(transition.getKey()), rpda.getState(transition.getValue()));
+            rpda.insertLink(rpda.getState(transition.getKey()), rpda.getState(transition.getValue()), actions.get(transition.getKey()));
             System.out.println("Linked " + transition.getKey() + " to " + transition.getValue());
+        }
+    }
+
+    public void generateTransitions(List<Integer> origins, List<Integer> targets, List<String> actions) {
+        for (int i = 0; i < targets.size(); i++) {
+            rpda.insertLink(rpda.getState(origins.get(i)), rpda.getState(targets.get(i)), actions.get(i));
         }
     }
 

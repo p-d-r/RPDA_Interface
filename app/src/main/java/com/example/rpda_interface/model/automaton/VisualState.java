@@ -119,7 +119,7 @@ public class VisualState implements Comparable
                         trans.getTarget().getCenterPosition().x + p.x,
                         trans.getTarget().getCenterPosition().y + p.y, mPaint);
 
-                canvas.drawText("move absolute", centerPosition.x - trnsMiddle.x, centerPosition.y - trnsMiddle.y, textPaint);
+                canvas.drawText(trans.getAction(), centerPosition.x - trnsMiddle.x, centerPosition.y - trnsMiddle.y, textPaint);
             /*canvas.drawLine(this.centerPosition.x, this.centerPosition.y,
                             trans.getTarget().getCenterPosition().x,
                             trans.getTarget().getCenterPosition().y, mPaint);*/
