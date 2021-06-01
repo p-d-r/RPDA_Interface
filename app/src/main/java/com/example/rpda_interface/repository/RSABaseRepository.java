@@ -99,6 +99,7 @@ public class RSABaseRepository implements Runnable {
         ArrayList<Integer> origins = new ArrayList<>();
         ArrayList<Integer> targets = new ArrayList<>();
         ArrayList<String> actions = new ArrayList<>();
+        ArrayList<String> transitionCriteria = new ArrayList<>();
         //HashMap<Integer, String> actions = new HashMap<>();
         boolean currentState = false;
 
@@ -113,39 +114,22 @@ public class RSABaseRepository implements Runnable {
                     iterator.next();
                 }
 
-                iterator.next();
 
-                while (iterator.current() != ';') {
-                    boolean sem = false;
-                    String targetId="";
-                    while (iterator.current() != ',') {
-                        if (iterator.current() == ';') {
-                            sem=true;
-                            break;
-                        }
-                        targetId += iterator.current();
-                        iterator.next();
-                    }
+                while (true) {
 
-                    iterator.next();
+                    String targetId=getNextBlock(iterator);
 
-                    String actionKind = "";
-                    while (iterator.current() != ',') {
-                        if (iterator.current() == ';') {
-                            sem=true;
-                            break;
-                        }
-                        actionKind += iterator.current();
-                        iterator.next();
-                    }
+                    if (targetId.equals(""))
+                        break;
 
-                    //transitions.put(Integer.parseInt(id), Integer.parseInt(targetId));
+                    String actionKind = getNextBlock(iterator);
+
+                    String branchingSymbol = getNextBlock(iterator);
+
                     origins.add(Integer.parseInt(id));
                     targets.add(Integer.parseInt(targetId));
                     actions.add(actionKind);
-                    //actions.put(Integer.parseInt(id), actionKind);
-                    if (!sem)
-                      iterator.next();
+                    transitionCriteria.add(branchingSymbol);
                 }
 
                 rpdaViewModel.handleStateAction(Integer.parseInt(id));
@@ -155,7 +139,7 @@ public class RSABaseRepository implements Runnable {
                 iterator.next();
         }
 
-        rpdaViewModel.generateTransitions(origins, targets, actions);
+        rpdaViewModel.generateTransitions(origins, targets, actions, transitionCriteria);
         dataReadyListener.onDataReady();
     }
 
@@ -240,6 +224,18 @@ public class RSABaseRepository implements Runnable {
             e.printStackTrace();
             connectionFailedListener.onConnectionFailed();
         }
+    }
+
+
+    private String getNextBlock(CharacterIterator iterator) {
+        String block = "";
+        if (iterator.current() == ';')
+            return block;
+        while (iterator.next() != CharacterIterator.DONE && iterator.current() != ';' && iterator.current() != ',') {
+            block += iterator.current();
+        }
+
+        return block;
     }
 
 

@@ -27,10 +27,12 @@ import com.example.rpda_interface.model.socketConnector.SocketConnector;
 import com.example.rpda_interface.repository.RSABaseRepository;
 import com.example.rpda_interface.viewmodel.RPDAViewModel;
 
+import java.util.ArrayList;
+
 
 public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickListener,
-                                                      DataReadyListener, ConnectionFailedListener,
-                                                      LinkInsertedListener {
+                                           DataReadyListener, ConnectionFailedListener,
+                                           LinkInsertedListener {
 
     private LinearLayout containerLayout;
     private EditText linkStateText;
@@ -41,6 +43,11 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
     private RSABaseRepository rsaBaseRepo;
     private RpdaSet rpdaSet;
     private ActionKind setAction;
+    private ArrayList<Integer> selectedItems;
+    private final String[] choices = new String[]{"only perceived object",
+                                                  "only topmost stack-symbol",
+                                                  "take both into account", "Object1 (tee gelb)",
+                                                  "Object2 (tee dunkel) ", "Object3 (salz)"};
     static int ids = 1;
 
     @Override
@@ -135,7 +142,7 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
             }
         });
 
-
+    selectedItems = new ArrayList<>();
         //rpdaViewModel.generateTestRpda();
         //automatonCanvas.updateRpda();
     }
@@ -187,7 +194,27 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
                     rsaBaseRepo.sendActionInfo(ActionKind.PUSH_OBJ_ID);
                     return true;
                 case R.id.scan_object:
-                    rsaBaseRepo.sendActionInfo(ActionKind.SCAN_FOR_OBJ);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("on which criteria should the new branch be chosen?");
+                    builder.setMultiChoiceItems(choices, null,
+                            new DialogInterface.OnMultiChoiceClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which,
+                                                    boolean isChecked) {
+                                    if (isChecked) {
+                                        // If the user checked the item, add it to the selected items
+                                        selectedItems.add(which);
+                                    } else if (selectedItems.contains(which)) {
+                                        // Else, if the item is already in the array, remove it
+                                        selectedItems.remove(Integer.valueOf(which));
+                                    }
+                                }
+                            });
+                    builder.setPositiveButton("ok", (dialog, id)
+                            -> onBranchingCriteriaSelected());
+                    builder.setNegativeButton("cancel", (dialog, id) -> {});
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
                     return true;
                 case R.id.gripper_action:
                     rsaBaseRepo.sendActionInfo(ActionKind.GRIPPER);
@@ -228,27 +255,7 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
                     rsaBaseRepo.sendActionInfo(ActionKind.MOVE_REL_OBJ);
                     return true;
                 case R.id.branch:
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setMessage("on which criteria should the new branch be chosen?");
-                    builder.setPositiveButton("only perceived object", (dialog, id)
-                            -> rsaBaseRepo.sendActionInfo(ActionKind.BRANCH, "p"));
-                    builder.setNegativeButton("only topmost stack-symbol", (dialog, id)
-                            -> rsaBaseRepo.sendActionInfo(ActionKind.BRANCH, "s"));
-                    builder.setNeutralButton("both", (dialog, id)
-                            -> rsaBaseRepo.sendActionInfo(ActionKind.BRANCH));
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-
-                    AlertDialog.Builder newBuilder = new AlertDialog.Builder(this);
-                    builder.setMessage("Do you want to push the perceived object-id?");
-                    builder.setPositiveButton("yes", (newDialog, id)
-                            -> rsaBaseRepo.sendActionInfo(ActionKind.PUSH_OBJ_ID));
-                    builder.setNegativeButton("No", (newDialog, which) -> {
-                        return;
-                    });
-                    AlertDialog newDialog = builder.create();
-                    newDialog.show();
-                    return true;
+                    rsaBaseRepo.sendActionInfo(ActionKind.BRANCH);
                 default:
                     return false;
             }
@@ -362,5 +369,36 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
     @Override
     public void onLinkInserted(int targetId) {
         rsaBaseRepo.sendActionInfo(ActionKind.INSERT_LINK, Integer.toString(targetId));
+    }
+
+
+    public void onBranchingCriteriaSelected() {
+        if (selectedItems.contains(0)) {
+            rsaBaseRepo.sendActionInfo(ActionKind.SCAN_FOR_OBJ);
+            return;
+        }
+        String specifier = "";
+        if (selectedItems.contains(1)) {
+            specifier += "s";
+        } else if (selectedItems.contains(2))
+            specifier += "b";
+            if (selectedItems.contains(3))
+                specifier += "3";
+            else if (selectedItems.contains(4))
+                specifier += "4";
+            else if(selectedItems.contains(5))
+                specifier += "5";
+
+        rsaBaseRepo.sendActionInfo(ActionKind.SCAN_FOR_OBJ, specifier);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("do you want to push the perceived object?");
+        builder.setPositiveButton("yes", (newDialog, id)
+                -> rsaBaseRepo.sendActionInfo(ActionKind.PUSH_OBJ_ID));
+        builder.setNegativeButton("No", (newDialog, which) -> {
+            return;
+        });
+        AlertDialog newDialog = builder.create();
+        newDialog.show();
     }
 }

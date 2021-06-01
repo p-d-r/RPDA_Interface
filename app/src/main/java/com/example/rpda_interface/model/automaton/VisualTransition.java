@@ -5,6 +5,7 @@ public class VisualTransition
     private VisualState origin;
     private VisualState target;
     private String action;
+    private String crit;
     private static int numberOfTransitions;
     private int id;
 
@@ -17,12 +18,13 @@ public class VisualTransition
     }
 
 
-    VisualTransition(VisualState origin, VisualState target, String action) {
+    VisualTransition(VisualState origin, VisualState target, String action, String crit) {
         this.id = numberOfTransitions;
         numberOfTransitions++;
         this.origin = origin;
         this.target = target;
         this.action = action;
+        this.crit = crit;
     }
 
 
@@ -35,4 +37,6 @@ public class VisualTransition
     }
 
     public String getAction() { return action; }
+
+    public String getCriterium() { return crit; }
 }

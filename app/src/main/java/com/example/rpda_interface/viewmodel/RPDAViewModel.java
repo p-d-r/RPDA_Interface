@@ -58,16 +58,10 @@ public class RPDAViewModel {
         undoActions.push(new StateAction(rpda.addState(new VisualState(id, coordinates, offset))));*/
     }
 
-    public void generateTransitions(HashMap<Integer, Integer> transitions, HashMap<Integer, String> actions) {
-        for (Map.Entry<Integer, Integer> transition : transitions.entrySet()) {
-            rpda.insertLink(rpda.getState(transition.getKey()), rpda.getState(transition.getValue()), actions.get(transition.getKey()));
-            System.out.println("Linked " + transition.getKey() + " to " + transition.getValue());
-        }
-    }
 
-    public void generateTransitions(List<Integer> origins, List<Integer> targets, List<String> actions) {
+    public void generateTransitions(List<Integer> origins, List<Integer> targets, List<String> actions, List<String> transitionCriteria) {
         for (int i = 0; i < targets.size(); i++) {
-            rpda.insertLink(rpda.getState(origins.get(i)), rpda.getState(targets.get(i)), actions.get(i));
+            rpda.insertLink(rpda.getState(origins.get(i)), rpda.getState(targets.get(i)), actions.get(i), transitionCriteria.get(i));
         }
     }
 
