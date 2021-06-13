@@ -237,7 +237,11 @@ public class AutomatonCanvas extends View {
         public boolean onDoubleTap(MotionEvent e) {
             doubleTapX = e.getX();
             doubleTapY = e.getY() + scrollY;
-            int id = rpda.getClosestState(doubleTapX, doubleTapY);
+            Matrix temp = new Matrix();
+            float[] pt = {doubleTapX, doubleTapY};
+            matrix.invert(temp);
+            temp.mapPoints(pt);
+            int id = rpda.getClosestState(pt[0], pt[1]);
             showChangeCurrentStateDialog(id);
             return true;
         }

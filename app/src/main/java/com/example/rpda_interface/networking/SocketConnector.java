@@ -11,10 +11,10 @@ import java.net.Socket;
 public class SocketConnector {
 
     private static final int portNumber = 6666;
-    private static final String TARGET_IP_IPV4 = "192.168.0.2";
+    //qprivate static final String TARGET_IP_IPV4 = "192.168.0.2";
     public static String dyn_ip_ipv4 = null;
     //private static final String TARGET_IP_IPV4 = "192.168.100.107";
-    //private static final String TARGET_IP_IPV4 = "192.168.43.205";
+    private static final String TARGET_IP_IPV4 = "192.168.43.205";
     //private static final String TARGET_IP_IPV6 = " 2a02:810d:8f40:971:cda3:e5ee:19ab:982b";
 
     private static Socket clientSocket;

@@ -42,7 +42,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="edit automaton.."
+            android:text="edit rpda-set.."
             android:onClick="showEditMenu"/>
 
         <EditText
@@ -50,25 +50,11 @@
             android:layout_width="wrap_content"
             android:id="@+id/linkStateInput" />
 
-
         <ImageButton
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:maxHeight="50dp"
-            android:maxWidth="50dp"
-            android:src="@drawable/play"
-            android:id="@+id/play_button"
-            android:onClick="play"
-            android:text="  "
-            android:adjustViewBounds="true"
-            android:padding="8dp"
-            android:scaleType="fitCenter" />
-
-        <ImageButton
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:maxHeight="50dp"
-            android:maxWidth="50dp"
+            android:maxWidth="100dp"
             android:src="@drawable/step"
             android:id="@+id/step_button"
             android:onClick="step"
@@ -81,19 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:maxHeight="50dp"
-            android:maxWidth="50dp"
-            android:src="@drawable/pause"
-            android:id="@+id/pause_button"
-            android:onClick="pause"
-            android:text="  "
-            android:adjustViewBounds="true"
-            android:padding="8dp"
-            android:scaleType="fitCenter"/>
-        <ImageButton
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:maxHeight="50dp"
-            android:maxWidth="50dp"
+            android:maxWidth="100dp"
             android:src="@drawable/stop"
             android:id="@+id/stop_button"
             android:onClick="stop"

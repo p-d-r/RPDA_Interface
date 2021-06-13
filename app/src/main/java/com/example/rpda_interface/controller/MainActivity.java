@@ -171,6 +171,7 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
         selectedItems = new ArrayList<>();
         selectedCriterion = new ArrayList<>();
         selectedItems = new ArrayList<>();
+        selectedObjects = new ArrayList<>();
         automatonCanvas.updateRpda();
         uiHandler = new Handler(Looper.getMainLooper());
     }
@@ -303,6 +304,8 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
                 case R.id.link_state:
                     automatonCanvas.linkByTap = 0;
                     return true;
+                case R.id.gravcomp:
+                    rsaBaseRepo.sendActionInfo(ActionKind.GRAVCOMP);
                 default:
                     return false;
             }
@@ -443,42 +446,15 @@ public class MainActivity extends Activity implements PopupMenu.OnMenuItemClickL
         });
     }
 
-
-    public void play(View view) {
-        inExecution = true;
-        setButtonsEnabledConfig(true, true, false, false);
-        rsaBaseRepo.sendActionInfo(ActionKind.JUMP);
-    }
-
-
     public void step(View view) {
         if (!inExecution) {
             rsaBaseRepo.sendActionInfo(ActionKind.EXECUTE);
         }
     }
 
-    public void pause(View view) {
-        inExecution = false;
-        setButtonsEnabledConfig(true, true, true, false);
-    }
-
     public void stop(View view) {
         inExecution = false;
-        setButtonsEnabledConfig(true, true, true, true);
         rsaBaseRepo.sendActionInfo(ActionKind.STOP);
     }
 
-    /**
-     * enable or disable pause, stop, step and play buttons
-     * @param pause true if pause button shall be enabled, false otherwise
-     * @param stop true if stop button shall be enabled, false otherwise
-     * @param step true if step button shall be enabled, false otherwise
-     * @param play true if play button shall be enabled, false otherwise
-     */
-    private void setButtonsEnabledConfig(boolean pause, boolean stop, boolean step, boolean play) {
-        findViewById(R.id.pause_button).setEnabled(pause);
-        findViewById(R.id.stop_button).setEnabled(stop);
-        findViewById(R.id.step_button).setEnabled(step);
-        findViewById(R.id.play_button).setEnabled(play);
-    }
 }

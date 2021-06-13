@@ -7,4 +7,8 @@
             android:title="add new branch"/>
         <item android:id="@+id/gripper_action"
             android:title="Open/Close Gripper" />
+        <item android:id="@+id/gravcomp"
+            android:title="Open/enable gravity compensation" />
+        <item android:id="@+id/link_state"
+            android:title="link state" />
     </menu>

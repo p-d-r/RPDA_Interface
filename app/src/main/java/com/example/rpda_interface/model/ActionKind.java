@@ -11,6 +11,7 @@ public enum ActionKind {
     GRIPPER,
     CSTATE_CHANGED,
     STOP,
+    GRAVCOMP,
     EXECUTE,
     QUIT,
     CREATE_SUBTASK,

@@ -61,9 +61,9 @@ public class StackRecyclerAdapter extends RecyclerView.Adapter<StackRecyclerAdap
         TextView itemText = holder.itemText;
         ImageView itemImage = holder.itemImage;
         itemText.setText(item);
-        if ("tee gelb".equals(item))
+        if ("tee_gelb".equals(item))
             itemImage.setImageResource(R.mipmap.tee_gelb);
-        else if ("tee dunkel".equals(item))
+        else if ("tee_qdunkel".equals(item))
             itemImage.setImageResource(R.mipmap.tee_dunkel);
         else itemImage.setImageDrawable(null);
     }
