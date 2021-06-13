@@ -1,4 +1,4 @@
-package com.example.rpda_interface.view;
+package com.example.rpda_interface.controller;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -10,8 +10,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.example.rpda_interface.R;
-import com.example.rpda_interface.SubtaskSelectorAdapter;
-import com.example.rpda_interface.model.action.ActionKind;
+import com.example.rpda_interface.model.ActionKind;
 import com.example.rpda_interface.model.automaton.RpdaSet;
 
 public class SubtaskSelectorActivity extends Activity implements View.OnClickListener {

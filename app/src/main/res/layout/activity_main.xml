@@ -3,15 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:id="@+id/containerLayout"
-    tools:context=".view.MainActivity">
+    tools:context=".controller.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="horizontal"
+        android:id="@+id/main_button_bar"
         tools:context=".MainActivity">
 
         <Button
@@ -29,50 +31,99 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="pop.."
-            android:onClick="showPopActionMenu"/>
+            android:text="pop"
+            android:onClick="popAction"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="actions.."
             android:onClick="showActionMenu"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="edit automaton.."
+            android:onClick="showEditMenu"/>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/createStateButton"
-            android:text="create state..."
-            android:onClick="createState"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="link"
-            android:onClick="linkState"/>
         <EditText
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:id="@+id/linkStateInput" />
-        <Button
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:id="@+id/optionsButton"
-            android:onClick="showOptionsActivity"
-            android:text="Options.."/>
 
-        <Button
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:id="@+id/linkByTap"
-            android:onClick="setLinkByTap"
-            android:text="LinkByTap"/>
 
-        <Button
+        <ImageButton
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:id="@+id/play"
-            android:onClick="execute"
-            android:text="play"/>
+            android:maxHeight="50dp"
+            android:maxWidth="50dp"
+            android:src="@drawable/play"
+            android:id="@+id/play_button"
+            android:onClick="play"
+            android:text="  "
+            android:adjustViewBounds="true"
+            android:padding="8dp"
+            android:scaleType="fitCenter" />
+
+        <ImageButton
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:maxHeight="50dp"
+            android:maxWidth="50dp"
+            android:src="@drawable/step"
+            android:id="@+id/step_button"
+            android:onClick="step"
+            android:text="  "
+            android:adjustViewBounds="true"
+            android:padding="8dp"
+            android:scaleType="fitCenter"/>
+
+        <ImageButton
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:maxHeight="50dp"
+            android:maxWidth="50dp"
+            android:src="@drawable/pause"
+            android:id="@+id/pause_button"
+            android:onClick="pause"
+            android:text="  "
+            android:adjustViewBounds="true"
+            android:padding="8dp"
+            android:scaleType="fitCenter"/>
+        <ImageButton
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:maxHeight="50dp"
+            android:maxWidth="50dp"
+            android:src="@drawable/stop"
+            android:id="@+id/stop_button"
+            android:onClick="stop"
+            android:text="  "
+            android:adjustViewBounds="true"
+            android:padding="8dp"
+            android:scaleType="fitCenter"/>
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_gravity="left"
+        android:id="@+id/automatonLayout">
+
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/stack_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
 </LinearLayout>

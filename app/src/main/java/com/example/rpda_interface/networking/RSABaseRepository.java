@@ -1,31 +1,32 @@
-package com.example.rpda_interface.repository;
+package com.example.rpda_interface.networking;
 
-import com.example.rpda_interface.ConnectionFailedListener;
-import com.example.rpda_interface.DataReadyListener;
+import com.example.rpda_interface.custom_listener.ConnectionFailedListener;
+import com.example.rpda_interface.custom_listener.DataReadyListener;
+import com.example.rpda_interface.custom_listener.RpdaStackChangedListener;
+import com.example.rpda_interface.controller.StackRecyclerAdapter;
 import com.example.rpda_interface.model.automaton.RpdaSet;
-import com.example.rpda_interface.model.socketConnector.SocketConnector;
-import com.example.rpda_interface.model.action.ActionKind;
-import com.example.rpda_interface.model.automaton.VisualRPDA;
+import com.example.rpda_interface.model.automaton.VisualRpdaStack;
+import com.example.rpda_interface.model.ActionKind;
 import com.example.rpda_interface.viewmodel.RPDAViewModel;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class RSABaseRepository implements Runnable {
 
     private static ActionKind currentActionKind = ActionKind.NO_ACTION;
     private RPDAViewModel rpdaViewModel;
     public RpdaSet rpdaSet;
+    public VisualRpdaStack rpdaStack;
+    private StackRecyclerAdapter adapter;
     private DataReadyListener dataReadyListener;
     private DataReadyListener setDataReadyListener;
     private ConnectionFailedListener connectionFailedListener;
+    private RpdaStackChangedListener rpdaStackChangedListener;
 
 
     public RSABaseRepository(RPDAViewModel rpdaViewModel) {
@@ -42,6 +43,10 @@ public class RSABaseRepository implements Runnable {
 
     public void setConnectionFailedListener(ConnectionFailedListener connectionFailedListener) {
         this.connectionFailedListener = connectionFailedListener;
+    }
+
+    public void setRpdaStackChangedListener(RpdaStackChangedListener rpdaStackChangedListener) {
+        this.rpdaStackChangedListener = rpdaStackChangedListener;
     }
 
     @Override
@@ -64,6 +69,7 @@ public class RSABaseRepository implements Runnable {
                 switch(str.charAt(0)) {
                     case '0': updateRpdaSet(str); break;
                     case '1': getRpdaSetInfo(str); break;
+                    case '2': getStackInfo(str); break;
                 }
             }
         } catch (IOException e) {
@@ -77,13 +83,7 @@ public class RSABaseRepository implements Runnable {
     }
 
 
-    private synchronized void setCurrentActionKind(ActionKind actionKind) {
-        currentActionKind = actionKind;
-    }
-
-
     private void updateRpdaSet(String message) {
-        //rpdaViewModel.generateNewRpda();
         String name = "";
         CharacterIterator iterator = new StringCharacterIterator(message);
         iterator.next();
@@ -94,14 +94,13 @@ public class RSABaseRepository implements Runnable {
 
         rpdaViewModel.generateNewRpda(name);
         iterator.next();
-        //rpda = new VisualRPDA(name);
-       // HashMap<Integer, Integer> transitions = new HashMap<>();
         ArrayList<Integer> origins = new ArrayList<>();
         ArrayList<Integer> targets = new ArrayList<>();
         ArrayList<String> actions = new ArrayList<>();
         ArrayList<String> transitionCriteria = new ArrayList<>();
-        //HashMap<Integer, String> actions = new HashMap<>();
+        ArrayList<String> transitionSamples = new ArrayList<>();
         boolean currentState = false;
+        boolean isBranching = false;
 
         while(iterator.current() != CharacterIterator.DONE) {
                 String id = "";
@@ -110,36 +109,41 @@ public class RSABaseRepository implements Runnable {
                         currentState = true;
                         iterator.next();
                     }
+                    if (iterator.current() == 'B'){
+                        isBranching = true;
+                        iterator.next();
+                    }
                     id += iterator.current();
                     iterator.next();
                 }
 
-
                 while (true) {
-
                     String targetId=getNextBlock(iterator);
-
                     if (targetId.equals(""))
                         break;
 
                     String actionKind = getNextBlock(iterator);
-
+                    String branchingSample = getNextBlock(iterator);
                     String branchingSymbol = getNextBlock(iterator);
-
                     origins.add(Integer.parseInt(id));
                     targets.add(Integer.parseInt(targetId));
                     actions.add(actionKind);
                     transitionCriteria.add(branchingSymbol);
+                    transitionSamples.add(branchingSample);
                 }
 
                 rpdaViewModel.handleStateAction(Integer.parseInt(id));
                 if (currentState)
                     rpdaViewModel.setCurrent(Integer.parseInt(id));
+                if (isBranching)
+                    rpdaViewModel.setBranchingState(Integer.parseInt(id));
+
                 currentState = false;
+                isBranching = false;
                 iterator.next();
         }
 
-        rpdaViewModel.generateTransitions(origins, targets, actions, transitionCriteria);
+        rpdaViewModel.generateTransitions(origins, targets, actions, transitionCriteria, transitionSamples);
         dataReadyListener.onDataReady();
     }
 
@@ -155,13 +159,16 @@ public class RSABaseRepository implements Runnable {
                     setDataReadyListener.onDataReady();
                     return;
                 }
+
                 id += iterator.current();
             }
+
             while (iterator.next() != ';') {
                 if (iterator.current() == iterator.DONE) {
                     setDataReadyListener.onDataReady();
                     return;
                 }
+
                 name += iterator.current();
             }
 
@@ -172,24 +179,42 @@ public class RSABaseRepository implements Runnable {
     }
 
 
+    private void getStackInfo(String message) {
+        CharacterIterator iterator = new StringCharacterIterator(message);
+        rpdaStack.clear();
+        while (iterator.current() != CharacterIterator.DONE && iterator.current() != ';') {
+            String item = getNextBlock(iterator);
+            System.out.println(item);
+            rpdaStack.addStackItem(item);
+        }
+
+        rpdaStackChangedListener.onRpdaStackChanged();
+    }
+
+
+    public void setRpdaStack(VisualRpdaStack rpdaStack) {
+        this.rpdaStack = rpdaStack;
+    }
+
+    public void setStackAdapter(StackRecyclerAdapter adapter) {
+        this.adapter = adapter;
+    }
+
+
     /**
      * Notify the main-system about an Action that was triggered by the user
      * @param actionKind the ActionKind that originated from the rpda_interface
      */
     public void sendActionInfo(ActionKind actionKind) {
         try {
-            ActionKind formerActionKind = currentActionKind;
             Runnable task = () -> {
-                setCurrentActionKind(actionKind);
                 try {
                     PrintWriter transmitter = SocketConnector.getTransmitter();
                     transmitter.write(actionKind.name());
                     transmitter.flush();
                 } catch (IOException e) {
                     e.printStackTrace(); //TODO handle connection loss -> try reconnect or the like
-                    currentActionKind = formerActionKind;
                     connectionFailedListener.onConnectionFailed();
-                    return;
                 }
             };
             new Thread(task).start();
@@ -205,18 +230,14 @@ public class RSABaseRepository implements Runnable {
      */
     public void sendActionInfo(ActionKind actionKind, String additionalInfo) {
         try {
-            ActionKind formerActionKind = currentActionKind;
             Runnable task = () -> {
-                setCurrentActionKind(actionKind);
                 try {
                     PrintWriter transmitter = SocketConnector.getTransmitter();
                     transmitter.write(actionKind.name() + "," + additionalInfo + ";");
                     transmitter.flush();
                 } catch (IOException e) {
-                    e.printStackTrace(); //TODO handle connection loss -> try reconnect or the like
-                    currentActionKind = formerActionKind;
+                    e.printStackTrace();
                     connectionFailedListener.onConnectionFailed();
-                    return;
                 }
             };
             new Thread(task).start();
@@ -237,7 +258,6 @@ public class RSABaseRepository implements Runnable {
 
         return block;
     }
-
 
     public RpdaSet getRpdaSet() {
         return rpdaSet;

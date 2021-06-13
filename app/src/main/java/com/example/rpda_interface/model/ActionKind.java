@@ -1,15 +1,16 @@
-package com.example.rpda_interface.model.action;
+package com.example.rpda_interface.model;
 
 public enum ActionKind {
-    LINK_STATE,
-    GENERATE_STATE,
     MOVE_ABS,
     MOVE_REL,
     MOVE_REL_OBJ,
     BRANCH,
     JUMP,
-    MOVE,
+    BRANCH_TOPMOST_SYMBOL,
+    BRANCH_STIMULUS_AND_TOPMOST,
     GRIPPER,
+    CSTATE_CHANGED,
+    STOP,
     EXECUTE,
     QUIT,
     CREATE_SUBTASK,
@@ -22,15 +23,7 @@ public enum ActionKind {
     PUSH_ABSOLUTE_POSE,
     INSERT_LINK,
     SCAN_FOR_OBJ,
-    UPDATE_AUTOMATON,
-    FETCH_RPDA_SET,
-    TAKE_POSE,
+    RESET_SUBTASK,
+    RESTART,
     POP,
-    SAVE,
-    RESTORE,
-    AUTOMATON_SAVE,
-    AUTOMATON_RESTORE,
-    SAMPLE_ADD,
-    SAMPLE_SPEC,
-    ACTION_LAST		//should never occur
 }

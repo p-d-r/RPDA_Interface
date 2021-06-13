@@ -12,15 +12,11 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
         <activity
-            android:name=".view.SubtaskSelectorActivity"
+            android:name=".controller.SubtaskSelectorActivity"
             android:screenOrientation="landscape">
         </activity>
         <activity
-            android:name=".view.OptionsActivity"
-            android:screenOrientation="landscape">
-        </activity>
-        <activity
-            android:name=".view.MainActivity"
+            android:name=".controller.MainActivity"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

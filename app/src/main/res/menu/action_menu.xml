@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <menu
+        xmlns:android="http://schemas.android.com/apk/res/android">
         <item android:id="@+id/branch"
-            android:title="branch" />
+            android:title="create branching state" />
         <item android:id="@+id/scan_object"
-            android:title="Scan for Object" />
+            android:title="add new branch"/>
         <item android:id="@+id/gripper_action"
             android:title="Open/Close Gripper" />
-        <item android:id="@+id/create_subtask"
-            android:title="Create new Subtask" />
-        <item android:id="@+id/switch_subtask"
-            android:title="switch subtask"/>
-        <item android:id="@+id/zoom_restore"
-            android:title="restore default zoom"/>
     </menu>

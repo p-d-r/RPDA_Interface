@@ -1,4 +1,4 @@
-package com.example.rpda_interface.view;
+package com.example.rpda_interface.controller;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -8,19 +8,18 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.util.DisplayMetrics;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
-import com.example.rpda_interface.LinkInsertedListener;
-import com.example.rpda_interface.R;
+import com.example.rpda_interface.custom_listener.CurrentStateChangedListener;
+import com.example.rpda_interface.custom_listener.LinkInsertedListener;
 import com.example.rpda_interface.model.automaton.VisualRPDA;
 import com.example.rpda_interface.model.automaton.VisualState;
 import com.example.rpda_interface.viewmodel.RPDAViewModel;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -29,23 +28,24 @@ import java.util.PriorityQueue;
 public class AutomatonCanvas extends View {
 
     private LinkInsertedListener linkInsertedListener;
+    private CurrentStateChangedListener currentStateChangedListener;
     private VisualRPDA rpda;
-    private Paint mPaint, aPaint, textPaint;
-    private int screenWidth, screenHeight;
+    private Paint mPaint, aPaint, branchPaint, textPaint;
     private Context context;
     private float scaleFactor = 1;
     private ScaleGestureDetector scaleListener;
+    private GestureDetector gestureDetector;
     private RPDAViewModel rpdaViewModel;
     private Matrix matrix;
     public int linkByTap = -1;
-    private int last_id = -1;
-    private int new_id = -1;
     float pinchX;
     float pinchY;
     float scrollX;
     float scrollY;
     float tapX;
     float tapY;
+    float doubleTapX;
+    float doubleTapY;
 
 
     public AutomatonCanvas(Context context, RPDAViewModel rpdaViewModel) {
@@ -53,6 +53,7 @@ public class AutomatonCanvas extends View {
         this.context = context;
         this.rpdaViewModel = rpdaViewModel;
         scaleListener = new ScaleGestureDetector(context, new ScaleListener());
+        gestureDetector = new GestureDetector(context, new GestureListener());
 
         rpda = rpdaViewModel.getRpda();
 
@@ -75,6 +76,12 @@ public class AutomatonCanvas extends View {
         aPaint.setStyle(Paint.Style.STROKE);
         aPaint.setColor(Color.GREEN);
         aPaint.setStrokeWidth(5);
+
+        branchPaint = new Paint();
+        branchPaint.setAntiAlias(true);
+        branchPaint.setStyle(Paint.Style.STROKE);
+        branchPaint.setColor(Color.RED);
+        branchPaint.setStrokeWidth(5);
         DisplayMetrics displayMetrics = new DisplayMetrics();
 
         ((Activity) getContext()).getWindowManager()
@@ -83,9 +90,6 @@ public class AutomatonCanvas extends View {
 
 
         matrix = new Matrix();
-
-        screenWidth = displayMetrics.widthPixels;
-        screenHeight = displayMetrics.heightPixels;
     }
 
 
@@ -105,14 +109,11 @@ public class AutomatonCanvas extends View {
         canvas.save();
         float x = (pinchX + scrollX);
         float y = (pinchY + scrollY);
-            //canvas.scale(scaleFactor, scaleFactor, Math.min(pinchX, 5000), Math.min(pinchY, 5000));
         canvas.concat(matrix);
         canvas.drawARGB(255, 255, 255, 255);
         printRPDAState(canvas);
         canvas.restore();
 
-        //canvas.drawArc(200, 100, 2000, 1000,180, 180, false, aPaint);
-        canvas.drawRect(100,100,7900, 4900, mPaint);
         if (rpda != null && rpda.name != null)
             canvas.drawText(rpda.name, 100, 100, mPaint);
         System.out.println("x: " + pinchX + "   y: " + pinchY + "         scale: " + scaleFactor);
@@ -126,7 +127,7 @@ public class AutomatonCanvas extends View {
         usedIds.add(0);
 
         while (!closure.isEmpty()) {
-            List<VisualState> newstates = (closure.poll().printStateAndTransitions(canvas, mPaint, aPaint, textPaint));
+            List<VisualState> newstates = (closure.poll().printStateAndTransitions(canvas, mPaint, aPaint, textPaint, branchPaint));
             for (VisualState staten:newstates) {
                 if (!usedIds.contains(staten.getId())) {
                     closure.add(staten);
@@ -147,26 +148,20 @@ public class AutomatonCanvas extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         boolean f = scaleListener.onTouchEvent(event);
+        gestureDetector.onTouchEvent(event);
 
         if (!scaleListener.isInProgress() && linkByTap != -1 && event.getAction() == MotionEvent.ACTION_DOWN) {
             tapX = event.getX();
-            tapY = event.getY();
+            tapY = event.getY() + scrollY;  //+scrollY because the vertical scroller handles events after automatonCanvas
             int stateId = tapSearchState();
 
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setMessage("Link to state " + stateId + "?");
-            builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    //rpda.insertLink( rpda.getState(stateId));
-                    System.out.println("linked to "  + stateId);
-                    linkInsertedListener.onLinkInserted(stateId);
-                }
+            builder.setPositiveButton("ok", (dialog, id) -> {
+                System.out.println("linked to "  + stateId);
+                linkInsertedListener.onLinkInserted(stateId);
             });
-            builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    return;
-                }
-            });
+            builder.setNegativeButton("cancel", (dialog, id) -> {});
             AlertDialog dialog = builder.create();
             dialog.show();
 
@@ -181,57 +176,72 @@ public class AutomatonCanvas extends View {
         this.linkInsertedListener = linkInsertedListener;
     }
 
+    public void setCurrentStateChangedListener(CurrentStateChangedListener currentStateChangedListener){
+        this.currentStateChangedListener = currentStateChangedListener;
+    }
+
     public int tapSearchState() {
-        System.out.println("before: " + tapX + ",      " + tapY);
+        //System.out.println("before: " + tapX + ",      " + tapY);
         Matrix temp = new Matrix();
         float[] pt = {tapX, tapY};
         matrix.invert(temp);
         temp.mapPoints(pt);
-        System.out.println("after:" + pt[0] + ",      " + pt[1]);
-
+        //System.out.println("after:" + pt[0] + ",      " + pt[1]);
         int id = rpda.getClosestState(pt[0], pt[1]);
-
-
-        System.out.println("found state: " + id);
-        System.out.println("state-coordinates: (" + rpda.getState(id).getCenterPosition().x +
-                                                    rpda.getState(id).getCenterPosition().y + ")");
-
+       /*System.out.println("found state: " + id);
+        System.out.println("state-coordinates: (" + rpda.getState(id).getCenterPosition().x + " ; " +
+                                                    rpda.getState(id).getCenterPosition().y + ")");*/
         return id;
     }
 
-
-    public void restoreDefaultZoom() {
-        matrix.invert(matrix);
+    private void showChangeCurrentStateDialog(int id) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage("make state " + id + " the current state?");
+        builder.setPositiveButton("ok", (dialog, id1) -> currentStateChangedListener.onCurrentStateChanged(id));
+        builder.setNegativeButton("cancel", (dialog, id12) -> {});
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
+
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
             pinchX = detector.getFocusX();
-            pinchY = detector.getFocusY();
+            pinchY = detector.getFocusY() + scrollY; //+scrollY since vertical scroller has not handled ui event yet
             System.out.println("begin");
             return true;
         }
 
-
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            float maxScale = 1.025f;
-            float minScale = 0.975f;
+            float maxScale = 1.0275f;
+            float minScale = 0.9725f;
             float tempScale =  detector.getScaleFactor() * scaleFactor;
             scaleFactor = Math.max(minScale, Math.min(tempScale, maxScale));
             matrix.postScale(scaleFactor, scaleFactor, pinchX, pinchY);
             invalidate();
             return true;
         }
+    }
 
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
-        public void onScaleEnd(ScaleGestureDetector detector) {
-            System.out.println("end");
+        public boolean onDown(MotionEvent e) {
+            return true;
         }
 
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            doubleTapX = e.getX();
+            doubleTapY = e.getY() + scrollY;
+            int id = rpda.getClosestState(doubleTapX, doubleTapY);
+            showChangeCurrentStateDialog(id);
+            return true;
+        }
     }
+
 }
 

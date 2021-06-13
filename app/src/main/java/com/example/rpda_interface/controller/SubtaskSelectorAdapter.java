@@ -1,7 +1,6 @@
-package com.example.rpda_interface;
+package com.example.rpda_interface.controller;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,8 +8,8 @@ import android.widget.Button;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.rpda_interface.R;
 import com.example.rpda_interface.model.automaton.RpdaSet;
-import com.example.rpda_interface.view.SubtaskSelectorActivity;
 
 public class SubtaskSelectorAdapter extends RecyclerView.Adapter<SubtaskSelectorAdapter.ViewHolder>{
 

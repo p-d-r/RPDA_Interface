@@ -17,7 +17,6 @@ public class VisualRPDA
     public String name;
     private ArrayList<PointF> usedPositions = new ArrayList<>();
 
-
     public VisualRPDA(VisualState initialState ){
         states = new HashMap<>();
         this.initialState = initialState;
@@ -30,19 +29,10 @@ public class VisualRPDA
         states = new HashMap<>();
     }
 
-
-    public HashMap<Integer, VisualState> getStates() {
-        return states;
-    }
-
-
     public VisualState getState(int id) {
        return states.get(id);
     }
-
-
     public VisualState getInitialState() {return initialState;}
-
 
     public VisualTransition insertLink(VisualState origin, VisualState target) {
         VisualTransition trans = new VisualTransition(origin, target);
@@ -50,38 +40,11 @@ public class VisualRPDA
         return trans;
     }
 
-
-    public VisualTransition insertLink(VisualState origin, VisualState target, String action, String crit) {
-        VisualTransition trans = new VisualTransition(origin, target, action, crit);
+    public VisualTransition insertLink(VisualState origin, VisualState target, String action, String crit, String sample) {
+        VisualTransition trans = new VisualTransition(origin, target, action, crit, sample);
         origin.addTransition(trans);
         return trans;
     }
-
-
-    public void insertLink(VisualState target) {
-        currentState.addTransition(target);
-        currentState = target;
-    }
-
-
-    public VisualTransition addState(VisualState target) {
-        VisualTransition link = null;
-        if (states.get(target.getId()) == null) {
-            if (states.size() == 0) {
-                initialState = target;
-                currentState = target;
-                target.setPosition(VisualConstants.INITIAL_STATE_POSITION, 0);
-
-                states.put(target.getId(), target);
-            } else {
-                states.put(target.getId(), target);
-                link = insertLink(currentState, target);
-                currentState = target;
-                }
-        }
-        return link;
-    }
-
 
     public void addStatePure(VisualState state) {
         states.put(state.getId(), state);
@@ -90,90 +53,33 @@ public class VisualRPDA
         }
     }
 
-
-    public void addState(int id) {
-        states.put(id, new VisualState(id));
-    }
-
-
-    public void removeState(VisualState state) {
-        states.remove(state.getId());
-    }
-
-
     public void setCurrentState(VisualState state) {
         currentState = state;
     }
-
-
-    public VisualState getCurrentState() {
-        return currentState;
-    }
-
-
-    public float getCurrentX() {
-        if (currentState != null)
-            return currentState.getCenterPosition().x;
-        else return 0;
-    }
-
-
-    public float getCurrentY() {
-        return currentState.getCenterPosition().y;
-    }
-
-
-    public void linkState(VisualState target) {
-        currentState.addTransition(target);
-        currentState = target;
-    }
-
-
-    public int computeIndirectOffset() {
-        PriorityQueue<VisualState> successors = new PriorityQueue<>();
-        HashSet<Integer> usedIds = new HashSet<>();
-        successors.add(currentState);
-        usedIds.add(currentState.getId());
-        int maxOffset = 0;
-
-        while (!successors.isEmpty()) {
-            VisualState successor = successors.poll();
-            usedIds.add(successor.getId());
-
-            if (successor.getVerticalOffset() > maxOffset)
-                maxOffset = successor.getVerticalOffset();
-
-            for (VisualState testSuccessor : successor.getSuccessorStates()) {
-                if (!usedIds.contains(testSuccessor.getId()))
-                    successors.add(testSuccessor);
-            }
-        }
-
-        return maxOffset;
-    }
-
 
     public int getClosestState(float x, float y) {
         float minDist = Float.MAX_VALUE;
         int id = -1;
         for (Map.Entry<Integer, VisualState> state : states.entrySet()) {
+            if (state.getValue().getCenterPosition() == null)
+                continue;
             float tempDistX = x - state.getValue().getCenterPosition().x;
             float tempDistY = y - state.getValue().getCenterPosition().y;
-            if (Math.sqrt(Math.pow(tempDistX, 2) + Math.pow(tempDistY, 2)) < minDist) {
-                minDist = (float) Math.sqrt(Math.pow(tempDistX, 2) + Math.pow(tempDistY, 2));
+            final double sqrt = Math.sqrt(Math.pow(tempDistX, 2) + Math.pow(tempDistY, 2));
+            if (sqrt < minDist) {
+                minDist = (float) sqrt;
                 id = state.getValue().getId();
             }
         }
+
         return id;
     }
 
-
     public void computeStatePositionsDepthFirst(HashSet<Integer> usedIds, VisualState state, VisualState predecessor, int branchNum) {
-
          if (!usedIds.contains(state.getId())) {
              usedIds.add(state.getId());
              if (predecessor == null) {
-                 state.setPosition(new PointF(VisualConstants.INITIAL_STATE_POSITION.x, VisualConstants.INITIAL_STATE_POSITION.y), 0);
+                 state.setPosition(new PointF(VisualConstants.INITIAL_STATE_POSITION.x, VisualConstants.INITIAL_STATE_POSITION.y));
              } else {
                  PointF pos = new PointF(predecessor.getCenterPosition().x + VisualConstants.transitionLengthX,
                                          predecessor.getCenterPosition().y + VisualConstants.transitionOffsetY * branchNum);
@@ -181,7 +87,7 @@ public class VisualRPDA
                  while (posAlreadyAssigned(pos))
                      pos.y += VisualConstants.transitionOffsetY;
 
-                 state.setPosition(pos, 0);
+                 state.setPosition(pos);
              }
 
              for (int i = 0; i < state.getSuccessorStates().size(); i++) {
@@ -189,18 +95,6 @@ public class VisualRPDA
              }
          }
     }
-
-
-    private boolean addPositionIfNotPresent(PointF pNew) {
-        for (PointF p : usedPositions) {
-            if (p.x == pNew.x && p.y == pNew.y) {
-                return false;
-            }
-        }
-        usedPositions.add(pNew);
-        return true;
-    }
-
 
     private boolean posAlreadyAssigned(PointF pos) {
         for (Map.Entry<Integer, VisualState> state : states.entrySet()) {

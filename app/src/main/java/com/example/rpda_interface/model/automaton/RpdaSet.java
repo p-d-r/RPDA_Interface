@@ -6,7 +6,6 @@ import java.util.ArrayList;
 public class RpdaSet implements Serializable {
 
     private ArrayList<String> names;
-    private ArrayList<VisualRPDA> rpdas;
 
     public RpdaSet() {
         names = new ArrayList<>();

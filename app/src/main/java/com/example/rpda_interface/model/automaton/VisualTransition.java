@@ -17,19 +17,25 @@ public class VisualTransition
         this.action = "no info";
     }
 
-
-    VisualTransition(VisualState origin, VisualState target, String action, String crit) {
+    VisualTransition(VisualState origin, VisualState target, String action, String symbol, String sample) {
         this.id = numberOfTransitions;
         numberOfTransitions++;
         this.origin = origin;
         this.target = target;
         this.action = action;
-        this.crit = crit;
-    }
-
-
-    public VisualState getOrigin() {
-        return origin;
+        crit = "";
+        if ("2".equals(sample))
+            crit += "tee_dunkel";
+        else if ("3".equals(sample))
+            crit += "tee_gelb";
+        else
+            crit += "*";
+        if (symbol != null && !"".equals(symbol)) {
+            if ("Base-Class".equals(symbol))
+                crit += ":" + "*";
+            else
+                crit += ":" + symbol;
+        }
     }
 
     public VisualState getTarget() {
@@ -38,5 +44,5 @@ public class VisualTransition
 
     public String getAction() { return action; }
 
-    public String getCriterium() { return crit; }
+    public String getCriterion() { return crit; }
 }
